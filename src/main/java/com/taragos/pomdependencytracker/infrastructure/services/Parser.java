@@ -4,5 +4,5 @@ import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 
 public interface Parser {
 
-    ArtifactEntity.Builder parse(String input) throws FieldParseException;
+    ArtifactEntity parse(String input) throws FieldParseException;
 }
