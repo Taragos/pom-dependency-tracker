@@ -7,6 +7,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Node("Artifact")
 public class ArtifactEntity {
@@ -70,6 +71,19 @@ public class ArtifactEntity {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ArtifactEntity artifact = (ArtifactEntity) o;
+        return groupId.equals(artifact.groupId) && artifactId.equals(artifact.artifactId) && version.equals(artifact.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupId, artifactId, version);
+    }
+
+    @Override
     public String toString() {
         return "ArtifactEntity{" +
                 "id=" + id +
@@ -82,20 +96,22 @@ public class ArtifactEntity {
 
     public static class Builder {
 
+        private final List<Dependency.Builder> dependencies = new ArrayList<>();
         private ArtifactEntity parent;
         private String groupId;
         private String artifactId;
         private String version;
-        private final List<Dependency> dependencies = new ArrayList<>();
 
-        public Builder() {}
+        public Builder() {
+        }
 
         public ArtifactEntity build() {
+            final List<Dependency> builtDeps = dependencies.stream().map(Dependency.Builder::build).toList();
             return new ArtifactEntity(
                     groupId,
                     artifactId,
                     version,
-                    dependencies,
+                    builtDeps,
                     parent
             );
         }
@@ -116,8 +132,39 @@ public class ArtifactEntity {
             this.version = version;
         }
 
-        public void addDependencies(Dependency dependency) {
+        public void addDependency(Dependency.Builder dependency) {
             dependencies.add(dependency);
+        }
+
+        public List<Dependency.Builder> getDependencies() {
+            return dependencies;
+        }
+
+        public void replaceDependencyIfContained(Dependency.Builder dependency) {
+            for (Dependency.Builder d : dependencies) {
+                if (d.getDependency().equalsSimple(dependency.getDependency())) {
+                    dependencies.remove(d);
+                    dependencies.add(dependency);
+                    break;
+                }
+            }
+        }
+
+        public boolean equalsSimple(Builder a) {
+            return Objects.equals(groupId, a.groupId) && Objects.equals(artifactId, a.artifactId);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Builder builder = (Builder) o;
+            return Objects.equals(groupId, builder.groupId) && Objects.equals(artifactId, builder.artifactId) && Objects.equals(version, builder.version);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(groupId, artifactId, version);
         }
     }
 }

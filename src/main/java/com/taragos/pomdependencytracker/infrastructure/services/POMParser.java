@@ -23,15 +23,19 @@ public class POMParser extends DefaultHandler implements Parser {
     private final Stack<ArtifactEntity.Builder> artifactBuilders = new Stack<>();
     private final Stack<Dependency.Builder> dependencyBuilders = new Stack<>();
 
-    private ArtifactEntity artifactEntity;
+    private ArtifactEntity.Builder artifactEntity;
 
     @Override
-    public ArtifactEntity parse(String input) throws ParserConfigurationException, SAXException, IOException {
+    public ArtifactEntity.Builder parse(String input) throws FieldParseException {
         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
-        SAXParser saxParser = saxParserFactory.newSAXParser();
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-        saxParser.parse(inputStream, this);
+        try {
+            final SAXParser saxParser = saxParserFactory.newSAXParser();
+            final InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
+            saxParser.parse(inputStream, this);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new FieldParseException(e);
+        }
 
         return artifactEntity;
     }
@@ -59,8 +63,8 @@ public class POMParser extends DefaultHandler implements Parser {
         this.elementStack.pop();
 
         if ("parent".equalsIgnoreCase(qName)) {
-            ArtifactEntity.Builder pBuilder = artifactBuilders.pop();
-            ArtifactEntity.Builder aBuilder = artifactBuilders.peek();
+            final ArtifactEntity.Builder pBuilder = artifactBuilders.pop();
+            final ArtifactEntity.Builder aBuilder = artifactBuilders.peek();
 
             aBuilder.setParent(pBuilder.build());
         }
@@ -69,16 +73,15 @@ public class POMParser extends DefaultHandler implements Parser {
             final ArtifactEntity.Builder dependencyArtifactBuilder = artifactBuilders.pop();
             final Dependency.Builder dependencyBuilder = dependencyBuilders.pop();
 
-            dependencyBuilder.setDependency(dependencyArtifactBuilder.build());
+            dependencyBuilder.setDependency(dependencyArtifactBuilder);
 
             final ArtifactEntity.Builder artifactBuilder = artifactBuilders.peek();
 
-            artifactBuilder.addDependencies(dependencyBuilder.build());
+            artifactBuilder.addDependency(dependencyBuilder);
         }
 
         if ("project".equalsIgnoreCase(qName)) {
-            ArtifactEntity.Builder artifact = artifactBuilders.pop();
-            this.artifactEntity = artifact.build();
+            this.artifactEntity = artifactBuilders.pop();
         }
     }
 
