@@ -38,4 +38,39 @@ public class Dependency {
     public ArtifactEntity getDependency() {
         return dependency;
     }
+
+    public static class Builder {
+        private String type;
+        private String scope;
+        private String classifier;
+        private ArtifactEntity dependency;
+
+        public Builder() {
+        }
+
+        public Dependency build() {
+            return new Dependency(
+                    type,
+                    scope,
+                    classifier,
+                    dependency
+            );
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public void setScope(String scope) {
+            this.scope = scope;
+        }
+
+        public void setClassifier(String classifier) {
+            this.classifier = classifier;
+        }
+
+        public void setDependency(ArtifactEntity dependency) {
+            this.dependency = dependency;
+        }
+    }
 }

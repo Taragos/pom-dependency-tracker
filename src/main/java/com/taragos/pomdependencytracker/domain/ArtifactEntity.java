@@ -11,25 +11,41 @@ import java.util.List;
 @Node("Artifact")
 public class ArtifactEntity {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-
     private final String groupId;
     private final String artifactId;
     private final String version;
 
-    @Relationship(type = "PARENT", direction = Relationship.Direction.OUTGOING)
-    private final ArtifactEntity parent;
-
     @Relationship(type = "DEPENDENCY", direction = Relationship.Direction.OUTGOING)
-    private final List<Dependency> dependencies = new ArrayList<>();
+    private final List<Dependency> dependencies;
+    @Id
+    @GeneratedValue
+    private Long id;
+    @Relationship(type = "PARENT", direction = Relationship.Direction.OUTGOING)
+    private ArtifactEntity parent;
 
+    /**
+     * Basic Constructor when creating Dependency-Objects for an Artifact
+     */
+    public ArtifactEntity(String groupId, String artifactId, String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+        this.dependencies = new ArrayList<>();
+    }
 
     public ArtifactEntity(String groupId, String artifactId, String version, ArtifactEntity parent) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.parent = parent;
+        this.dependencies = new ArrayList<>();
+    }
+
+    public ArtifactEntity(String groupId, String artifactId, String version, List<Dependency> dependencies, ArtifactEntity parent) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+        this.dependencies = dependencies;
         this.parent = parent;
     }
 
@@ -62,5 +78,46 @@ public class ArtifactEntity {
                 ", version='" + version + '\'' +
                 ", parent=" + parent +
                 '}';
+    }
+
+    public static class Builder {
+
+        private ArtifactEntity parent;
+        private String groupId;
+        private String artifactId;
+        private String version;
+        private final List<Dependency> dependencies = new ArrayList<>();
+
+        public Builder() {}
+
+        public ArtifactEntity build() {
+            return new ArtifactEntity(
+                    groupId,
+                    artifactId,
+                    version,
+                    dependencies,
+                    parent
+            );
+        }
+
+        public void setParent(ArtifactEntity parent) {
+            this.parent = parent;
+        }
+
+        public void setGroupId(String groupId) {
+            this.groupId = groupId;
+        }
+
+        public void setArtifactId(String artifactId) {
+            this.artifactId = artifactId;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public void addDependencies(Dependency dependency) {
+            dependencies.add(dependency);
+        }
     }
 }
