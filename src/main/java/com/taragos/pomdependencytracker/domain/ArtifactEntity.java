@@ -17,7 +17,7 @@ public class ArtifactEntity {
     private final String version;
 
     @Relationship(type = "DEPENDENCY", direction = Relationship.Direction.OUTGOING)
-    private final List<Dependency> dependencies;
+    private final List<DependencyRelationship> dependencies;
     @Id
     @GeneratedValue
     private Long id;
@@ -42,7 +42,7 @@ public class ArtifactEntity {
         this.dependencies = new ArrayList<>();
     }
 
-    public ArtifactEntity(String groupId, String artifactId, String version, List<Dependency> dependencies, ArtifactEntity parent) {
+    public ArtifactEntity(String groupId, String artifactId, String version, List<DependencyRelationship> dependencies, ArtifactEntity parent) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -66,7 +66,7 @@ public class ArtifactEntity {
         return parent;
     }
 
-    public List<Dependency> getDependencies() {
+    public List<DependencyRelationship> getDependencies() {
         return dependencies;
     }
 
@@ -96,7 +96,7 @@ public class ArtifactEntity {
 
     public static class Builder {
 
-        private final List<Dependency.Builder> dependencies = new ArrayList<>();
+        private final List<DependencyRelationship.Builder> dependencies = new ArrayList<>();
         private ArtifactEntity parent;
         private String groupId;
         private String artifactId;
@@ -106,7 +106,7 @@ public class ArtifactEntity {
         }
 
         public ArtifactEntity build() {
-            final List<Dependency> builtDeps = dependencies.stream().map(Dependency.Builder::build).toList();
+            final List<DependencyRelationship> builtDeps = dependencies.stream().map(DependencyRelationship.Builder::build).toList();
             return new ArtifactEntity(
                     groupId,
                     artifactId,
@@ -132,16 +132,16 @@ public class ArtifactEntity {
             this.version = version;
         }
 
-        public void addDependency(Dependency.Builder dependency) {
+        public void addDependency(DependencyRelationship.Builder dependency) {
             dependencies.add(dependency);
         }
 
-        public List<Dependency.Builder> getDependencies() {
+        public List<DependencyRelationship.Builder> getDependencies() {
             return dependencies;
         }
 
-        public void replaceDependencyIfContained(Dependency.Builder dependency) {
-            for (Dependency.Builder d : dependencies) {
+        public void replaceDependencyIfContained(DependencyRelationship.Builder dependency) {
+            for (DependencyRelationship.Builder d : dependencies) {
                 if (d.getDependency().equalsSimple(dependency.getDependency())) {
                     dependencies.remove(d);
                     dependencies.add(dependency);
