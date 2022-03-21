@@ -1,7 +1,7 @@
 package com.taragos.pomdependencytracker.infrastructure.services;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
-import com.taragos.pomdependencytracker.domain.Dependency;
+import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -35,11 +35,11 @@ public class DependencyTreeParser implements Parser {
 
     private ArtifactEntity.Builder mergeDependencies(ArtifactEntity.Builder base, ArtifactEntity.Builder incoming) {
         if (base.equals(incoming)) {
-            final Dependency.Builder relevantDependency = incoming.getDependencies().get(0);
+            final DependencyRelationship.Builder relevantDependency = incoming.getDependencies().get(0);
             base.addDependency(relevantDependency);
         }
 
-        for (Dependency.Builder d : base.getDependencies()) {
+        for (DependencyRelationship.Builder d : base.getDependencies()) {
             mergeDependencies(d.getDependency(), incoming);
         }
 
@@ -50,20 +50,20 @@ public class DependencyTreeParser implements Parser {
         final String[] tupleSplit = line.split(" -> ");
 
         final ArtifactEntity.Builder artifact = parseArtifact(tupleSplit[0]);
-        final Dependency.Builder depBuilder = parseDependency(tupleSplit[1]);
+        final DependencyRelationship.Builder depBuilder = parseDependency(tupleSplit[1]);
 
         artifact.addDependency(depBuilder);
         return artifact;
     }
 
-    private Dependency.Builder parseDependency(String line) {
+    private DependencyRelationship.Builder parseDependency(String line) {
         final ArtifactEntity.Builder dependencyArtifact = parseArtifact(line);
 
         final String artifactString = line.substring(line.indexOf("\""), line.lastIndexOf("\""));
         final String[] fields = artifactString.split(":");
 
 
-        final Dependency.Builder builder = new Dependency.Builder();
+        final DependencyRelationship.Builder builder = new DependencyRelationship.Builder();
         builder.setType(fields[2]);
         builder.setScope(fields[4]);
         builder.setDependency(dependencyArtifact);

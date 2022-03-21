@@ -1,7 +1,7 @@
 package com.taragos.pomdependencytracker.infrastructure.services;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
-import com.taragos.pomdependencytracker.domain.Dependency;
+import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -21,7 +21,7 @@ public class POMParser extends DefaultHandler implements Parser {
 
     private final Stack<String> elementStack = new Stack<>();
     private final Stack<ArtifactEntity.Builder> artifactBuilders = new Stack<>();
-    private final Stack<Dependency.Builder> dependencyBuilders = new Stack<>();
+    private final Stack<DependencyRelationship.Builder> dependencyBuilders = new Stack<>();
 
     private ArtifactEntity.Builder artifactEntity;
 
@@ -54,7 +54,7 @@ public class POMParser extends DefaultHandler implements Parser {
 
         if ("dependency".equalsIgnoreCase(qName)) {
             artifactBuilders.push(new ArtifactEntity.Builder());
-            dependencyBuilders.push(new Dependency.Builder());
+            dependencyBuilders.push(new DependencyRelationship.Builder());
         }
     }
 
@@ -71,7 +71,7 @@ public class POMParser extends DefaultHandler implements Parser {
 
         if ("dependency".equalsIgnoreCase(qName)) {
             final ArtifactEntity.Builder dependencyArtifactBuilder = artifactBuilders.pop();
-            final Dependency.Builder dependencyBuilder = dependencyBuilders.pop();
+            final DependencyRelationship.Builder dependencyBuilder = dependencyBuilders.pop();
 
             dependencyBuilder.setDependency(dependencyArtifactBuilder);
 

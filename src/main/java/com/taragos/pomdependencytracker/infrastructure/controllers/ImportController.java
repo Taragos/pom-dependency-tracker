@@ -1,7 +1,8 @@
 package com.taragos.pomdependencytracker.infrastructure.controllers;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
-import com.taragos.pomdependencytracker.domain.Dependency;
+import com.taragos.pomdependencytracker.domain.DependencyRelationship;
+import com.taragos.pomdependencytracker.infrastructure.repositories.ArtifactRepository;
 import com.taragos.pomdependencytracker.infrastructure.services.DependencyTreeParser;
 import com.taragos.pomdependencytracker.infrastructure.services.FieldParseException;
 import com.taragos.pomdependencytracker.infrastructure.services.POMParser;
@@ -24,15 +25,18 @@ public class ImportController {
     @Autowired
     private DependencyTreeParser dependencyTreeParser;
 
+    @Autowired
+    private ArtifactRepository artifactRepository;
+
     @PostMapping(value = "/import", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ArtifactEntity createArtifact(@RequestBody MultiValueMap<String, String> formData) throws FieldParseException {
         final ArtifactEntity.Builder dependencyTreeOutput = dependencyTreeParser.parse(Objects.requireNonNull(formData.getFirst("dependencyTree")));
         final ArtifactEntity.Builder pomOutput = pomParser.parse(Objects.requireNonNull(formData.getFirst("pom")));
 
-        final List<Dependency.Builder> treeDependencies = dependencyTreeOutput.getDependencies();
-        final List<Dependency.Builder> pomDependencies = pomOutput.getDependencies();
+        final List<DependencyRelationship.Builder> treeDependencies = dependencyTreeOutput.getDependencies();
+        final List<DependencyRelationship.Builder> pomDependencies = pomOutput.getDependencies();
 
-        for (Dependency.Builder d : treeDependencies) {
+        for (DependencyRelationship.Builder d : treeDependencies) {
             pomOutput.replaceDependencyIfContained(d);
         }
 

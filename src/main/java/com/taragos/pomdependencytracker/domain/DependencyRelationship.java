@@ -5,10 +5,8 @@ import org.springframework.data.neo4j.core.schema.RelationshipId;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
-import java.util.Objects;
-
 @RelationshipProperties
-public class Dependency {
+public class DependencyRelationship {
 
     private final String type;
     private final String scope;
@@ -18,7 +16,7 @@ public class Dependency {
     @RelationshipId
     private Long id;
 
-    public Dependency(String type, String scope, String classifier, ArtifactEntity dependency) {
+    public DependencyRelationship(String type, String scope, String classifier, ArtifactEntity dependency) {
         this.type = type;
         this.scope = scope;
         this.classifier = classifier;
@@ -50,8 +48,8 @@ public class Dependency {
         public Builder() {
         }
 
-        public Dependency build() {
-            return new Dependency(
+        public DependencyRelationship build() {
+            return new DependencyRelationship(
                     type,
                     scope,
                     classifier,
