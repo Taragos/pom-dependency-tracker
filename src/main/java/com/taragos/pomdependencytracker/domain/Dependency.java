@@ -1,4 +1,4 @@
-package com.taragos.pomdependencytracker.models;
+package com.taragos.pomdependencytracker.domain;
 
 
 import org.springframework.data.neo4j.core.schema.RelationshipId;
