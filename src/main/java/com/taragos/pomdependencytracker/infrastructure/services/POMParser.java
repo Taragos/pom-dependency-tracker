@@ -20,13 +20,13 @@ import java.util.Stack;
 public class POMParser extends DefaultHandler implements Parser {
 
     private final Stack<String> elementStack = new Stack<>();
-    private final Stack<ArtifactEntity.Builder> artifactBuilders = new Stack<>();
-    private final Stack<DependencyRelationship.Builder> dependencyBuilders = new Stack<>();
+    private final Stack<ArtifactEntity> artifactBuilders = new Stack<>();
+    private final Stack<DependencyRelationship> dependencyBuilders = new Stack<>();
 
-    private ArtifactEntity.Builder artifactEntity;
+    private ArtifactEntity artifactEntity;
 
     @Override
-    public ArtifactEntity.Builder parse(String input) throws FieldParseException {
+    public ArtifactEntity parse(String input) throws FieldParseException {
         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 
         try {
@@ -45,16 +45,16 @@ public class POMParser extends DefaultHandler implements Parser {
         this.elementStack.push(qName);
 
         if ("project".equalsIgnoreCase(qName)) {
-            artifactBuilders.push(new ArtifactEntity.Builder());
+            artifactBuilders.push(new ArtifactEntity());
         }
 
         if ("parent".equalsIgnoreCase(qName)) {
-            artifactBuilders.push(new ArtifactEntity.Builder());
+            artifactBuilders.push(new ArtifactEntity());
         }
 
         if ("dependency".equalsIgnoreCase(qName)) {
-            artifactBuilders.push(new ArtifactEntity.Builder());
-            dependencyBuilders.push(new DependencyRelationship.Builder());
+            artifactBuilders.push(new ArtifactEntity());
+            dependencyBuilders.push(new DependencyRelationship());
         }
     }
 
@@ -63,19 +63,19 @@ public class POMParser extends DefaultHandler implements Parser {
         this.elementStack.pop();
 
         if ("parent".equalsIgnoreCase(qName)) {
-            final ArtifactEntity.Builder pBuilder = artifactBuilders.pop();
-            final ArtifactEntity.Builder aBuilder = artifactBuilders.peek();
+            final ArtifactEntity pBuilder = artifactBuilders.pop();
+            final ArtifactEntity aBuilder = artifactBuilders.peek();
 
-            aBuilder.setParent(pBuilder.build());
+            aBuilder.setParent(pBuilder);
         }
 
         if ("dependency".equalsIgnoreCase(qName)) {
-            final ArtifactEntity.Builder dependencyArtifactBuilder = artifactBuilders.pop();
-            final DependencyRelationship.Builder dependencyBuilder = dependencyBuilders.pop();
+            final ArtifactEntity dependencyArtifactBuilder = artifactBuilders.pop();
+            final DependencyRelationship dependencyBuilder = dependencyBuilders.pop();
 
             dependencyBuilder.setDependency(dependencyArtifactBuilder);
 
-            final ArtifactEntity.Builder artifactBuilder = artifactBuilders.peek();
+            final ArtifactEntity artifactBuilder = artifactBuilders.peek();
 
             artifactBuilder.addDependency(dependencyBuilder);
         }
@@ -101,6 +101,7 @@ public class POMParser extends DefaultHandler implements Parser {
         }
 
         if ("artifactId".equalsIgnoreCase(current)) {
+
             this.artifactBuilders.peek().setArtifactId(value);
             return;
         }
@@ -117,8 +118,5 @@ public class POMParser extends DefaultHandler implements Parser {
             this.dependencyBuilders.peek().setType(value);
         }
 
-        if ("classifier".equalsIgnoreCase(current)) {
-            this.dependencyBuilders.peek().setClassifier(value);
-        }
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 public class ImportController {
@@ -30,17 +31,20 @@ public class ImportController {
 
     @PostMapping(value = "/import", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ArtifactEntity createArtifact(@RequestBody MultiValueMap<String, String> formData) throws FieldParseException {
-        final ArtifactEntity.Builder dependencyTreeOutput = dependencyTreeParser.parse(Objects.requireNonNull(formData.getFirst("dependencyTree")));
-        final ArtifactEntity.Builder pomOutput = pomParser.parse(Objects.requireNonNull(formData.getFirst("pom")));
+        final ArtifactEntity dependencyTreeOutput = dependencyTreeParser.parse(Objects.requireNonNull(formData.getFirst("dependencyTree")));
+        final ArtifactEntity pomOutput = pomParser.parse(Objects.requireNonNull(formData.getFirst("pom")));
 
-        final List<DependencyRelationship.Builder> treeDependencies = dependencyTreeOutput.getDependencies();
-        final List<DependencyRelationship.Builder> pomDependencies = pomOutput.getDependencies();
+        final List<DependencyRelationship> treeDependencies = dependencyTreeOutput.getDependencies();
+        final List<DependencyRelationship> pomDependencies = pomOutput.getDependencies();
 
-        for (DependencyRelationship.Builder d : treeDependencies) {
+        for (DependencyRelationship d : treeDependencies) {
             pomOutput.replaceDependencyIfContained(d);
         }
 
-        return pomOutput.build();
+        //https://stackoverflow.com/questions/52567345/duplicate-relationships-where-relationship-entity-has-an-attribute
+        Optional<ArtifactEntity> byId = artifactRepository.findById(pomOutput.getGAV());
+
+        return artifactRepository.save(pomOutput);
     }
 }
 

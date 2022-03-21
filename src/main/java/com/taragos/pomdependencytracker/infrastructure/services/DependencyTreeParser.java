@@ -12,17 +12,17 @@ import java.io.StringReader;
 public class DependencyTreeParser implements Parser {
 
     @Override
-    public ArtifactEntity.Builder parse(String input) throws FieldParseException {
+    public ArtifactEntity parse(String input) throws FieldParseException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
             String line = reader.readLine();
-            ArtifactEntity.Builder artifact = parseArtifact(line);
+            ArtifactEntity artifact = parseArtifact(line);
 
             line = reader.readLine();
             while (line != null) {
                 if (line.contains("}")) {
                     break;
                 }
-                final ArtifactEntity.Builder current = parseLine(line);
+                final ArtifactEntity current = parseLine(line);
                 artifact = mergeDependencies(artifact, current);
                 line = reader.readLine();
             }
@@ -33,54 +33,53 @@ public class DependencyTreeParser implements Parser {
         }
     }
 
-    private ArtifactEntity.Builder mergeDependencies(ArtifactEntity.Builder base, ArtifactEntity.Builder incoming) {
+    private ArtifactEntity mergeDependencies(ArtifactEntity base, ArtifactEntity incoming) {
         if (base.equals(incoming)) {
-            final DependencyRelationship.Builder relevantDependency = incoming.getDependencies().get(0);
+            final DependencyRelationship relevantDependency = incoming.getDependencies().get(0);
             base.addDependency(relevantDependency);
         }
 
-        for (DependencyRelationship.Builder d : base.getDependencies()) {
+        for (DependencyRelationship d : base.getDependencies()) {
             mergeDependencies(d.getDependency(), incoming);
         }
 
         return base;
     }
 
-    private ArtifactEntity.Builder parseLine(String line) {
+    private ArtifactEntity parseLine(String line) {
         final String[] tupleSplit = line.split(" -> ");
 
-        final ArtifactEntity.Builder artifact = parseArtifact(tupleSplit[0]);
-        final DependencyRelationship.Builder depBuilder = parseDependency(tupleSplit[1]);
+        final ArtifactEntity artifact = parseArtifact(tupleSplit[0]);
+        final DependencyRelationship depBuilder = parseDependency(tupleSplit[1]);
 
         artifact.addDependency(depBuilder);
         return artifact;
     }
 
-    private DependencyRelationship.Builder parseDependency(String line) {
-        final ArtifactEntity.Builder dependencyArtifact = parseArtifact(line);
+    private DependencyRelationship parseDependency(String line) {
+        final ArtifactEntity dependencyArtifact = parseArtifact(line);
 
         final String artifactString = line.substring(line.indexOf("\""), line.lastIndexOf("\""));
         final String[] fields = artifactString.split(":");
 
 
-        final DependencyRelationship.Builder builder = new DependencyRelationship.Builder();
-        builder.setType(fields[2]);
-        builder.setScope(fields[4]);
-        builder.setDependency(dependencyArtifact);
-
-        return builder;
+        return new DependencyRelationship(
+                fields[2],
+                fields[4],
+                dependencyArtifact
+        );
     }
 
-    private ArtifactEntity.Builder parseArtifact(String line) {
+    private ArtifactEntity parseArtifact(String line) {
         final String artifactString = line.substring(line.indexOf("\"") + 1, line.lastIndexOf("\""));
         final String[] fields = artifactString.split(":");
 
-        final ArtifactEntity.Builder builder = new ArtifactEntity.Builder();
-        builder.setGroupId(fields[0]);
-        builder.setArtifactId(fields[1]);
+        final ArtifactEntity artifact = new ArtifactEntity();
+        artifact.setGroupId(fields[0]);
+        artifact.setArtifactId(fields[1]);
         // Ignore 2 since it is the type field, which is not required for the artifact itself
-        builder.setVersion(fields[3]);
+        artifact.setVersion(fields[3]);
 
-        return builder;
+        return artifact;
     }
 }
