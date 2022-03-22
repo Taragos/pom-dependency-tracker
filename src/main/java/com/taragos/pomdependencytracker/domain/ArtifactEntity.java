@@ -1,15 +1,11 @@
 package com.taragos.pomdependencytracker.domain;
 
-import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import org.springframework.stereotype.Indexed;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Node("Artifact")
 public class ArtifactEntity {
@@ -27,17 +23,8 @@ public class ArtifactEntity {
     @Relationship(type = "PARENT", direction = Relationship.Direction.OUTGOING)
     private ArtifactEntity parent;
 
-    public ArtifactEntity() {}
-
-    /**
-     * Basic Constructor when creating Dependency-Objects for an Artifact
-     */
-    public ArtifactEntity(String groupId, String artifactId, String version, List<DependencyRelationship> dependencies, ArtifactEntity parent) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.dependencies = dependencies;
-        this.parent = parent;
+    public ArtifactEntity() {
+        this.dependencies = new ArrayList<>();
     }
 
     public String getGAV() {
@@ -80,12 +67,47 @@ public class ArtifactEntity {
         return dependencies;
     }
 
+    public void setDependencies(List<DependencyRelationship> dependencies) {
+        this.dependencies = dependencies;
+    }
+
     public void addDependency(DependencyRelationship dependency) {
         this.dependencies.add(dependency);
     }
 
-    public void setDependencies(List<DependencyRelationship> dependencies) {
-        this.dependencies = dependencies;
+    public void replaceDependencyIfContained(DependencyRelationship dependency) {
+        for (DependencyRelationship d : dependencies) {
+            if (d.getDependency().equalsSimple(dependency.getDependency())) {
+                dependencies.remove(d);
+                dependencies.add(dependency);
+                break;
+            }
+        }
+    }
+
+    public Set<Long> copyIds(ArtifactEntity artifact) {
+        final Set<Long> removableDependencies = new HashSet<>();
+
+        for (DependencyRelationship d : artifact.getDependencies()) {
+            final int i = dependencies.indexOf(d);
+            if (i != -1) {
+                final DependencyRelationship withId = dependencies.get(i);
+                withId.setId(d.getId());
+                removableDependencies.addAll(withId.getDependency().copyIds(d.getDependency()));
+            } else {
+                removableDependencies.add(d.getId());
+            }
+        }
+        return removableDependencies;
+    }
+
+    /**
+     * Only checks whether two artifacts share the same groupId and artifactId
+     * @param a other artifact to check against
+     * @return  true if same groupId + artifactId, otherwise false
+     */
+    public boolean equalsSimple(ArtifactEntity a) {
+        return Objects.equals(groupId, a.groupId) && Objects.equals(artifactId, a.artifactId);
     }
 
     @Override
@@ -113,19 +135,6 @@ public class ArtifactEntity {
                 '}';
     }
 
-    public void replaceDependencyIfContained(DependencyRelationship dependency) {
-        for (DependencyRelationship d : dependencies) {
-            if (d.getDependency().equalsSimple(dependency.getDependency())) {
-                dependencies.remove(d);
-                dependencies.add(dependency);
-                break;
-            }
-        }
-    }
 
-
-    public boolean equalsSimple(ArtifactEntity a) {
-        return Objects.equals(groupId, a.groupId) && Objects.equals(artifactId, a.artifactId);
-    }
 
 }
