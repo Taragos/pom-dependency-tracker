@@ -15,11 +15,7 @@ public class ImportService {
     @Autowired
     private ArtifactRepository artifactRepository;
 
-    public ArtifactEntity importArtifact(ArtifactEntity pomArtifact, ArtifactEntity treeArtifact) {
-        for (DependencyRelationship d : treeArtifact.getDependencies()) {
-            pomArtifact.replaceDependencyIfContained(d);
-        }
-
+    public ArtifactEntity importArtifact(ArtifactEntity pomArtifact) {
         copyIds(pomArtifact);
 
         return artifactRepository.save(pomArtifact);

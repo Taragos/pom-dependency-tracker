@@ -1,15 +1,15 @@
-package com.taragos.pomdependencytracker.infrastructure.services;
+package com.taragos.pomdependencytracker.infrastructure.parser;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import com.taragos.pomdependencytracker.exceptions.FieldParseException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 
-@Service
+@Component
 public class DependencyTreeParser implements Parser {
 
     @Override

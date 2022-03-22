@@ -1,4 +1,4 @@
-package com.taragos.pomdependencytracker.infrastructure.services;
+package com.taragos.pomdependencytracker.infrastructure.parser;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.exceptions.FieldParseException;

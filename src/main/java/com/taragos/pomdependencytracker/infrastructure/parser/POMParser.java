@@ -1,8 +1,9 @@
-package com.taragos.pomdependencytracker.infrastructure.services;
+package com.taragos.pomdependencytracker.infrastructure.parser;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import com.taragos.pomdependencytracker.exceptions.FieldParseException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -17,7 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 
-@Service
+@Component
 public class POMParser extends DefaultHandler implements Parser {
 
     private final Stack<String> elementStack = new Stack<>();
