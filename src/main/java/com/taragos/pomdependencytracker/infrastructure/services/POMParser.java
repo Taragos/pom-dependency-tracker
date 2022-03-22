@@ -2,6 +2,7 @@ package com.taragos.pomdependencytracker.infrastructure.services;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
+import com.taragos.pomdependencytracker.exceptions.FieldParseException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
