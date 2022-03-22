@@ -57,6 +57,10 @@ public class POMParser extends DefaultHandler implements Parser {
             artifactBuilders.push(new ArtifactEntity());
             dependencyBuilders.push(new DependencyRelationship());
         }
+
+        if ("plugin".equalsIgnoreCase(qName)) {
+            artifactBuilders.push(new ArtifactEntity());
+        }
     }
 
     @Override
@@ -83,6 +87,10 @@ public class POMParser extends DefaultHandler implements Parser {
 
         if ("project".equalsIgnoreCase(qName)) {
             this.artifactEntity = artifactBuilders.pop();
+        }
+
+        if ("plugin".equalsIgnoreCase(qName)) {
+            artifactBuilders.pop();
         }
     }
 
