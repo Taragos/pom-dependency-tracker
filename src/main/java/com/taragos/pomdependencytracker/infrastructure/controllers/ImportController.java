@@ -7,24 +7,23 @@ import com.taragos.pomdependencytracker.infrastructure.services.ImportService;
 import com.taragos.pomdependencytracker.infrastructure.services.ParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/import")
 public class ImportController {
 
-    @Autowired
-    private ParserService parserService;
+    private final ParserService parserService;
+    private final ImportService importService;
 
-    @Autowired
-    private ImportService importService;
+    public ImportController(ParserService parserService, ImportService importService) {
+        this.parserService = parserService;
+        this.importService = importService;
+    }
 
-    @PostMapping(value = "/import", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/full", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ArtifactEntity createArtifact(@ModelAttribute ImportRequestModel importRequest) throws FieldParseException {
         final ArtifactEntity artifact = parserService.parse(importRequest);
-
         return importService.importArtifact(artifact);
     }
 }
