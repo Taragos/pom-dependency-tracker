@@ -21,6 +21,7 @@ on:
       - main
 
 env:
+  DOCKER_REGISTRY: docker.io
   GHCR_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -91,7 +92,7 @@ jobs:
         id: meta-docker
         if: ${{ github.event.inputs.doRelease }}
         uses: docker/metadata-action@v3
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: DOCKER - Build / Push
         if: ${{ github.event.inputs.doRelease }}
