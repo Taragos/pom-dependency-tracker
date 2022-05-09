@@ -106,7 +106,3 @@ jobs:
           labels: ${{ steps.meta-docker.outputs.labels }}
           cache-from: type=registry,ref=${{ env.DOCKERHUB_REPO }}:latest
           cache-to: type=inline
-
-      - name: Maven Rollback Release
-        if: ${{ github.event.inputs.doRelease}} && ${{ failure() }}
-        run: mvn -B release:rollback
