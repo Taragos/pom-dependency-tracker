@@ -3,17 +3,14 @@ package com.taragos.pomdependencytracker.infrastructure.services;
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import com.taragos.pomdependencytracker.infrastructure.repositories.ArtifactRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ImportService {
-
-    @Autowired
-    private ArtifactRepository artifactRepository;
+public record ImportService(
+        ArtifactRepository artifactRepository) {
 
     public ArtifactEntity importArtifact(ArtifactEntity pomArtifact) {
         copyIds(pomArtifact);
@@ -25,6 +22,8 @@ public class ImportService {
 
     /**
      * Checks the ArtifactRepository for existing Artifacts and copies the ids of their relationships to the corresponding of the new import
+     * Required because otherwise Neo4j will try to create new Artifacts, failing because the IDs are already used
+     *
      * @param artifact Artifact to fill ids in
      */
     private void copyIds(ArtifactEntity artifact) {
