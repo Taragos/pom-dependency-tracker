@@ -22,7 +22,6 @@ on:
 
 env:
   GHCR_REGISTRY: ghcr.io
-  DOCKER_REGISTRY: docker
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -87,7 +86,6 @@ jobs:
         if: ${{ github.event.inputs.doRelease }}
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
@@ -95,8 +93,6 @@ jobs:
         id: meta-docker
         if: ${{ github.event.inputs.doRelease }}
         uses: docker/metadata-action@v3
-        with:
-          images: ${{ env.DOCKER_REGISTRY}}/${{ env.IMAGE_NAME }}
 
       - name: DOCKER - Build / Push
         if: ${{ github.event.inputs.doRelease }}
