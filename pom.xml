@@ -23,9 +23,9 @@
     </issueManagement>
 
     <scm>
-        <url>https://github.com/taragos/pom-dependency-tracker</url>
-        <connection>scm:git:git://github.com/taragos/pom-dependency-tracker.git</connection>
-        <developerConnection>scm:git:git@github.com:taragos/pom-dependency-tracker.git</developerConnection>
+        <url>https://github.com/Taragos/pom-dependency-tracker.git</url>
+        <connection>scm:git:ssh://git@github.com/Taragos/pom-dependency-tracker.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:Taragos/pom-dependency-tracker.git</developerConnection>
     </scm>
 
     <properties>
