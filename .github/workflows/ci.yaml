@@ -92,7 +92,8 @@ jobs:
         id: meta-docker
         if: ${{ github.event.inputs.doRelease }}
         uses: docker/metadata-action@v3
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+        with:
+          images: ${{ env.DOCKER_REGISTRY}}/${{ env.IMAGE_NAME }}
 
       - name: DOCKER - Build / Push
         if: ${{ github.event.inputs.doRelease }}
