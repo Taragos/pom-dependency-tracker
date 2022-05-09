@@ -41,6 +41,14 @@ jobs:
       - name: Maven Build
         run: mvn clean package
 
+      - name: Configure git
+        if: ${{ github.event.inputs.doRelease }}
+        run: |
+          git config --global committer.email "noreply@github.com"
+          git config --global committer.name "GitHub"
+          git config --global author.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global author.name "${GITHUB_ACTOR}"
+
       - name: Maven Prepare Release
         if: ${{ github.event.inputs.doRelease }}
         env:
