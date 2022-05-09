@@ -50,8 +50,6 @@ jobs:
 
       - name: Maven Prepare Release
         if: ${{ github.event.inputs.doRelease }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn --batch-mode release:prepare -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }}
 
       - name: Maven Perform Release
@@ -107,3 +105,6 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCKERHUB_REPO }}:latest
           cache-to: type=inline
 
+      - name: Maven Rollback Release
+        if: ${{ github.event.inputs.doRelease}} && ${{ failure() }}
+        run: mvn -B release:rollback
