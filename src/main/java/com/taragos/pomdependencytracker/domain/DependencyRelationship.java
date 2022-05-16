@@ -1,7 +1,9 @@
 package com.taragos.pomdependencytracker.domain;
 
 
-import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.schema.RelationshipId;
+import org.springframework.data.neo4j.core.schema.RelationshipProperties;
+import org.springframework.data.neo4j.core.schema.TargetNode;
 
 import java.util.Objects;
 
@@ -25,6 +27,26 @@ public class DependencyRelationship {
         this.dependency = dependency;
     }
 
+    public DependencyRelationship(String GAV) {
+        String[] split = GAV.split(":");
+        final String groupId = split[0];
+        final String artifactID = split[1];
+        final String version = split[2];
+
+        final ArtifactEntity artifact = new ArtifactEntity();
+        artifact.setArtifactId(groupId);
+        artifact.setArtifactId(artifactID);
+        artifact.setArtifactId(version);
+
+        if (split.length == 4) {
+            this.scope = split[3];
+        } else {
+            this.scope = "compile";                         // default to compile
+        }
+        this.dependency = artifact;
+        this.type = "jar";
+    }
+
     public Long getId() {
         return id;
     }
@@ -37,20 +59,20 @@ public class DependencyRelationship {
         return type;
     }
 
-    public String getScope() {
-        return scope;
-    }
-
-    public ArtifactEntity getDependency() {
-        return dependency;
-    }
-
     public void setType(String type) {
         this.type = type;
     }
 
+    public String getScope() {
+        return scope;
+    }
+
     public void setScope(String scope) {
         this.scope = scope;
+    }
+
+    public ArtifactEntity getDependency() {
+        return dependency;
     }
 
     public void setDependency(ArtifactEntity dependency) {

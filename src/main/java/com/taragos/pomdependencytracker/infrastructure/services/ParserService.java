@@ -21,6 +21,11 @@ public record ParserService(POMParser pomParser,
             pomArtifact.replaceDependencyIfContained(d);
         }
 
+        for (String dep : importRequest.getAdditionalDependencies()) {
+            DependencyRelationship dependencyRelationship = new DependencyRelationship(dep);
+            pomArtifact.addDependency(dependencyRelationship);
+        }
+
         return pomArtifact;
     }
 }
