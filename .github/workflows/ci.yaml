@@ -3,6 +3,11 @@ name: Maven Package
 on:
   workflow_dispatch:
     inputs:
+      pushToDocker:
+        description: Push Image to Docker (even if snapshot)
+        required: true
+        default: false
+        type: boolean
       doRelease:
         description: Create a Maven Release
         required: true
@@ -82,7 +87,7 @@ jobs:
           cache-to: type=inline
 
       - name: DOCKER - Login
-        if: ${{ github.event.inputs.doRelease }}
+        if: ${{ github.event.inputs.doRelease }} || ${{ github.event.input.pushToDocker }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USER }}
@@ -90,13 +95,13 @@ jobs:
 
       - name: DOCKER - Extract metadata
         id: meta-docker
-        if: ${{ github.event.inputs.doRelease }}
+        if: ${{ github.event.inputs.doRelease }} || ${{ github.event.input.pushToDocker }}
         uses: docker/metadata-action@v3
         with:
           images: ${{ env.DOCKER_REGISTRY}}/${{ env.IMAGE_NAME }}
 
       - name: DOCKER - Build / Push
-        if: ${{ github.event.inputs.doRelease }}
+        if: ${{ github.event.inputs.doRelease }} || ${{ github.event.input.pushToDocker }}
         uses: docker/build-push-action@v2
         with:
           context: .
