@@ -77,8 +77,8 @@ public class UIController {
             final ArtifactEntity next = queue.pop();
 
             // Check if it is parent of something -> Children should also be checked
-            final List<ArtifactEntity> childrenOfCurrentIteration = artifactRepository.findAllThatParentUse(next.getArtifactId(), next.getGroupId(), next.getVersion());
-            queue.addAll(childrenOfCurrentIteration);
+//            final List<ArtifactEntity> childrenOfCurrentIteration = artifactRepository.findAllThatParentUse(next.getArtifactId(), next.getGroupId(), next.getVersion());
+//            queue.addAll(childrenOfCurrentIteration);
 
             LOG.debug("Searching for uses of Artifact: {}", next.getGAV());
             final List<ArtifactEntity> currentIterationResults = artifactRepository.findAllThatUse(next.getArtifactId(), next.getGroupId(), next.getVersion());
