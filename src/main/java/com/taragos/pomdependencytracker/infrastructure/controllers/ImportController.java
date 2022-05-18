@@ -24,7 +24,7 @@ public class ImportController {
         this.importService = importService;
     }
 
-    @PostMapping(value = "/full", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/full", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ArtifactEntity createArtifact(@ModelAttribute ImportRequestModel importRequest) throws FieldParseException {
         LOG.debug("Starting Import for Request");
         LOG.debug("POM: {}", importRequest.getPom());
