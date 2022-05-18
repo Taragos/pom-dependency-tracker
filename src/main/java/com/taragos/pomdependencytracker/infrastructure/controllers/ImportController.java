@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/import")
 public class ImportController {
@@ -25,10 +27,11 @@ public class ImportController {
     }
 
     @PostMapping(value = "/full", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ArtifactEntity createArtifact(@ModelAttribute ImportRequestModel importRequest) throws FieldParseException {
+    public ArtifactEntity createArtifact(@ModelAttribute ImportRequestModel importRequest) throws FieldParseException, IOException {
         LOG.debug("Starting Import for Request");
         LOG.debug("POM: {}", importRequest.getPom());
         LOG.debug("DependencyTree: {}", importRequest.getDependencyTree());
+        LOG.debug("Additional Dependencies: {}", importRequest.getAdditionalDependencies());
         final ArtifactEntity artifact = parserService.parse(importRequest);
         return importService.importArtifact(artifact);
     }

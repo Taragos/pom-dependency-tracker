@@ -34,9 +34,9 @@ public class DependencyRelationship {
         final String version = split[2];
 
         final ArtifactEntity artifact = new ArtifactEntity();
-        artifact.setArtifactId(groupId);
+        artifact.setGroupId(groupId);
         artifact.setArtifactId(artifactID);
-        artifact.setArtifactId(version);
+        artifact.setVersion(version);
 
         if (split.length == 4) {
             this.scope = split[3];
