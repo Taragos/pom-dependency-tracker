@@ -7,35 +7,19 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1 th:text="'POM Dependency Tracker'"/>
-        <nav>
-            <a href="/ui/artifacts" class="selected">Artefact-Search</a>
-            <a href="/ui/dependencies">Dependency-Search</a>
-        </nav>
-    </header>
+    <header th:replace="fragments/general.html :: header"></header>
     <div class="main">
         <div class="data">
-<!--            <table>-->
-<!--                <thead>-->
-<!--                <tr>-->
-<!--                    <th>Group-ID</th>-->
-<!--                    <th>Artifact-ID</th>-->
-<!--                    <th>Version</th>-->
-<!--                    <th>Dependencies</th>-->
-<!--                </tr>-->
-<!--                </thead>-->
-<!--                <tbody th:each="artifact: ${artifacts}">-->
-<!--                <tr>-->
-<!--                    <td th:text="${artifact.groupId}"/>-->
-<!--                    <td th:text="${artifact.artifactId}"/>-->
-<!--                    <td th:text="${artifact.version}"/>-->
-<!--                    <td>-->
-<!--                        <a th:href="@{|/dependencies/search?groupId=${artifact.groupId}&artifactId=${artifact.artifactId}&version=${artifact.version}|}">=></a>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                </tbody>-->
-<!--            </table>-->
+            <div class="flex-row">
+                <p>Group-ID</p>
+                <p>Artifact-ID</p>
+                <p>Version</p>
+                <p>Show More</p>
+            </div>
+            <hr>
+            <div>
+                <div th:each="result: ${results}" th:insert="fragments/dataDisplay :: topRow(${result})"></div>
+            </div>
         </div>
         <div class="sidebar">
             <h2>Dependency-Search</h2>
@@ -44,17 +28,17 @@
                 <label for="groupId">Group ID</label>
                 <input type="text" id="groupId" th:name="groupId" placeholder="com.example"/>
 
-                <label for="artefactId">Artefact ID</label>
-                <input type="text" id="artefactId" th:name="artefactId" placeholder="example"/>
+                <label for="artifactId">Artifact ID</label>
+                <input type="text" id="artifactId" th:name="artifactId" placeholder="example"/>
 
                 <label for="version">Version</label>
                 <input type="text" id="version" th:name="version" placeholder="1.0.0"/>
 
                 <label for="scope">Scope</label>
-                <input type="text" id="scope" th:name="scope" placeholder="1.0.0"/>
+                <input type="text" id="scope" th:name="scope" placeholder="compile"/>
 
                 <label for="artifactFilter">Artifact-Filter</label>
-                <input type="text" id="artifactFilter" th:name="artifactFilter" placeholder="1.0.0"/>
+                <input type="text" id="artifactFilter" th:name="artifactFilter" placeholder=""/>
 
                 <div class="formGroup">
                     <input type="checkbox" id="direct" th:name="direct" placeholder="false"/>
