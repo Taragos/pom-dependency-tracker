@@ -1,35 +1,38 @@
 package com.taragos.pomdependencytracker.domain;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 import java.util.List;
 
 public class ImportRequestModel {
-    private String pom;
-    private String dependencyTree;
+    private MultipartFile pom;
+    private MultipartFile dependencyTree;
 
     /**
      * Comma-seperated List
      */
     private List<String> additionalDependencies;
 
-    public ImportRequestModel(String pom, String dependencyTree, List<String> additionalDependencies) {
+    public ImportRequestModel(MultipartFile pom, MultipartFile dependencyTree, List<String> additionalDependencies) {
         this.pom = pom;
         this.dependencyTree = dependencyTree;
         this.additionalDependencies = additionalDependencies;
     }
 
-    public String getPom() {
+    public MultipartFile getPom() {
         return pom;
     }
 
-    public void setPom(String pom) {
+    public void setPom(MultipartFile pom) {
         this.pom = pom;
     }
 
-    public String getDependencyTree() {
+    public MultipartFile getDependencyTree() {
         return dependencyTree;
     }
 
-    public void setDependencyTree(String dependencyTree) {
+    public void setDependencyTree(MultipartFile dependencyTree) {
         this.dependencyTree = dependencyTree;
     }
 
