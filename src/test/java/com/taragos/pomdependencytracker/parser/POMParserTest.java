@@ -55,8 +55,8 @@ public class POMParserTest {
             Assertions.assertEquals("org.springframework.boot", dep.getDependency().getGroupId());
             Assertions.assertEquals("spring-boot-starter-data-neo4j", dep.getDependency().getArtifactId());
             Assertions.assertNull(dep.getDependency().getVersion());
-            Assertions.assertNull(dep.getType());
-            Assertions.assertNull(dep.getScope());
+            Assertions.assertEquals("jar", dep.getType());
+            Assertions.assertEquals("compile", dep.getScope());
             Assertions.assertEquals(0, dep.getDependency().getDependencies().size());
 
         } catch (FieldParseException e) {
