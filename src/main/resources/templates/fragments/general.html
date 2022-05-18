@@ -1,0 +1,7 @@
+<header th:fragment="my_header">
+    <h1>POM Dependency Tracker</h1>
+    <nav>
+        <a th:classappend="${#httpServletRequest.requestURI == '/ui/artifacts'} ? 'selected' : ''" href="/ui/artifacts">Artifact-Search</a>
+        <a th:classappend="${#httpServletRequest.requestURI == '/ui/dependencies'} ? 'selected' : ''" href="/ui/dependencies">Dependency-Search</a>
+    </nav>
+</header>

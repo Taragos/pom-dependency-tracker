@@ -1,0 +1,28 @@
+<div th:fragment="topRow(result)">
+    <div class="flex-row">
+        <p th:text="${result.groupId}"/>
+        <p th:text="${result.artifactId}"/>
+        <p th:text="${result.version}"/>
+        <p>
+            Nothing
+        </p>
+    </div>
+    <div class="bottomRow"
+         th:replace="fragments/dataDisplay :: bottomRow (${result.getDependencies().get(0).getDependency()})"></div>
+</div>
+
+<div class="bottomRow" th:fragment="bottomRow(result)">
+    <div class="flex-row">
+        <p th:text="${result.groupId}"/>
+        <p th:text="${result.artifactId}"/>
+        <p th:text="${result.version}"/>
+        <p>
+
+        </p>
+    </div>
+    <div th:if="${result.getDependencies().size() > 0}">
+        <div class="bottomRow"
+             th:replace="fragments/dataDisplay :: bottomRow (${result.getDependencies().get(0).getDependency()})">
+        </div>
+    </div>
+</div>
