@@ -10,8 +10,9 @@ import java.util.Objects;
 @RelationshipProperties
 public class DependencyRelationship {
 
-    private String type;
-    private String scope;
+    private String type = "jar";
+
+    private String scope = "compile";
     @TargetNode
     private ArtifactEntity dependency;
 
@@ -40,11 +41,8 @@ public class DependencyRelationship {
 
         if (split.length == 4) {
             this.scope = split[3];
-        } else {
-            this.scope = "compile";                         // default to compile
         }
         this.dependency = artifact;
-        this.type = "jar";
     }
 
     public Long getId() {

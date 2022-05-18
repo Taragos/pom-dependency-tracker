@@ -17,7 +17,7 @@ public interface ArtifactRepository extends Neo4jRepository<ArtifactEntity, Stri
     @Query("MATCH (n)-[r:DEPENDENCY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE t.version =~ $version RETURN n, collect(r), collect(t)")
     List<ArtifactEntity> findAllThatUse(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version);
 
-    @Query("MATCH (c: Artifact)-[pr:PARENT]->(p: Artifact)-[d:DEPENENDENY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE t.version =~ $version RETURN n, collect(r), collect(t)")
+    @Query("MATCH (c: Artifact)-[pr:PARENT]->(p: Artifact)-[d:DEPENENDENY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE t.version =~ $version RETURN c, collect(r), collect(t)")
     List<ArtifactEntity> findAllThatParentUse(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version);
 
 }
