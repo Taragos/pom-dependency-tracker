@@ -7,7 +7,6 @@ import com.taragos.pomdependencytracker.infrastructure.services.ImportService;
 import com.taragos.pomdependencytracker.infrastructure.services.ParserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +32,7 @@ public class ImportController {
         LOG.debug("DependencyTree: {}", importRequest.getDependencyTree());
         LOG.debug("Additional Dependencies: {}", importRequest.getAdditionalDependencies());
         final ArtifactEntity artifact = parserService.parse(importRequest);
+        LOG.info("importing artifact: {} - with {} direct dependencies", artifact.getGAV(), artifact.getDependencies().size());
         return importService.importArtifact(artifact);
     }
 }

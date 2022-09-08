@@ -24,8 +24,8 @@
                     <td th:text="${artifact.groupId}"/>
                     <td th:text="${artifact.artifactId}"/>
                     <td th:text="${artifact.version}"/>
-                    <td>
-                        <a th:href="@{|/dependencies/search?groupId=${artifact.groupId}&artifactId=${artifact.artifactId}&version=${artifact.version}|}">=></a>
+                    <td class="center">
+                        <a class="arrow" th:href="@{|/ui/dependencies/search?groupId=${artifact.groupId}&artifactId=${artifact.artifactId}&version=${artifact.version}|}">&raquo</a>
                     </td>
                 </tr>
                 </tbody>

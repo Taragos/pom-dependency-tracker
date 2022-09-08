@@ -4,7 +4,6 @@ import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import com.taragos.pomdependencytracker.exceptions.FieldParseException;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -42,6 +41,10 @@ public class POMParser extends DefaultHandler implements Parser {
         return artifactEntity;
     }
 
+    private boolean inRelevantTag() {
+        return !(elementStack.contains("plugins") || elementStack.contains("profile"));
+    }
+
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         this.elementStack.push(qName);
@@ -54,13 +57,9 @@ public class POMParser extends DefaultHandler implements Parser {
             artifactBuilders.push(new ArtifactEntity());
         }
 
-        if ("dependency".equalsIgnoreCase(qName)) {
+        if (inRelevantTag() && "dependency".equalsIgnoreCase(qName)) {
             artifactBuilders.push(new ArtifactEntity());
             dependencyBuilders.push(new DependencyRelationship());
-        }
-
-        if ("plugin".equalsIgnoreCase(qName)) {
-            artifactBuilders.push(new ArtifactEntity());
         }
     }
 
@@ -75,7 +74,7 @@ public class POMParser extends DefaultHandler implements Parser {
             aBuilder.setParent(pBuilder);
         }
 
-        if ("dependency".equalsIgnoreCase(qName)) {
+        if (inRelevantTag() && "dependency".equalsIgnoreCase(qName)) {
             final ArtifactEntity dependencyArtifactBuilder = artifactBuilders.pop();
             final DependencyRelationship dependencyBuilder = dependencyBuilders.pop();
 
@@ -88,10 +87,7 @@ public class POMParser extends DefaultHandler implements Parser {
 
         if ("project".equalsIgnoreCase(qName)) {
             this.artifactEntity = artifactBuilders.pop();
-        }
-
-        if ("plugin".equalsIgnoreCase(qName)) {
-            artifactBuilders.pop();
+            return;
         }
     }
 
@@ -104,6 +100,10 @@ public class POMParser extends DefaultHandler implements Parser {
         }
 
         final String current = this.elementStack.peek();
+
+        if (!inRelevantTag()) {
+            return;
+        }
 
         if ("groupId".equalsIgnoreCase(current)) {
             this.artifactBuilders.peek().setGroupId(value);
