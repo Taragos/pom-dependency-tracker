@@ -11,7 +11,7 @@
 
     <groupId>com.taragos</groupId>
     <artifactId>pom-dependency-tracker</artifactId>
-    <version>0.0.11-SNAPSHOT</version>
+    <version>0.0.12-SNAPSHOT</version>
 
     <name>POM Dependency Tracker</name>
     <description>A small REST-API based tool for tracking, searching and visualizing maven project dependencies.
