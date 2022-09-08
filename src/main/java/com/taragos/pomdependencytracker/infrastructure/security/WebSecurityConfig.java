@@ -31,6 +31,7 @@ public class WebSecurityConfig {
 
         http
                 .csrf().disable()
+                .authorizeRequests((requests) -> requests.antMatchers("/ui/status").permitAll())
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .httpBasic();
