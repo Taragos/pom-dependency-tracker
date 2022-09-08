@@ -1,0 +1,887 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.clausohm.elvis</groupId>
+        <artifactId>parent-core</artifactId>
+        <version>1.8</version>
+    </parent>
+
+    <artifactId>parent</artifactId>
+    <version>2.27</version>
+    <packaging>pom</packaging>
+    <name>Parent</name>
+
+    <!-- url/ciManagement/scm section copied as is from parent -->
+    <url>${project_url}</url>
+
+    <ciManagement>
+        <system>${project_ciManagement.system}</system>
+        <url>${project_ciManagement.url}</url>
+    </ciManagement>
+
+    <scm>
+        <connection>${project_scm.connection}</connection>
+        <developerConnection>${project_scm.developerConnection}</developerConnection>
+        <url>${project_scm.url}</url>
+        <tag>parent-2.27</tag>
+    </scm>
+
+    <properties>
+        <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+
+        <slf4j.version>1.7.32</slf4j.version> <!-- https://www.slf4j.org/news.html -->
+        <cxf.version>3.3.10</cxf.version> <!-- as in apache-camel 2.25.4 -->
+        <camel.version>2.25.4</camel.version> <!-- last to work with cxf 3.3 -->
+        <gson.version>2.8.9</gson.version>
+        <protobuf.version>3.19.1</protobuf.version>
+        <guava.version>30.1.1-jre</guava.version> <!-- also used by protobuf-java-util and grpc -->
+        <grpc.version>1.43.0</grpc.version>
+        <lz4.version>1.8.0</lz4.version> <!-- used in grpc-utils and cmn-redis -->
+        <zstd.version>1.4.9-1</zstd.version> <!-- last to work with JAva 8; used in grpc-utils and cmn-redis -->
+        <netty.version>4.1.68.Final</netty.version> <!-- used by grpc and lettuce -->
+        <jackson.version>2.10.5
+        </jackson.version> <!-- sames as cxf-jackson/3.3.10 feature; used by swagger / jaxrs clients and elastic-search -->
+        <osgi_core.version>6.0.0</osgi_core.version>
+        <mockito.version>4.2.0</mockito.version>
+        <logback.version>1.2.10</logback.version>
+
+        <!-- overridden by child pom's -->
+        <!-- EVERYTHING_BUT_DOTS = "[^\\.]+";
+             MAJOR_DOT_MINOR = "(" + EVERYTHING_BUT_DOTS + "(?:\\." + EVERYTHING_BUT_DOTS + ")?).*"; -->
+        <enforcer.dependencyConvergence.versionPattern>([^\.]+(?:\.[^\.]+)?).*
+        </enforcer.dependencyConvergence.versionPattern>
+
+        <!-- project specific -->
+        <scm.repo>parent</scm.repo>
+
+        <!-- surefire props -->
+        <surefire.groups/>
+        <surefire.excludedGroupsBase>
+            de.clausohm.vtp.commons.junit.LongRunning,de.clausohm.vtp.commons.junit.LiveRegression,
+        </surefire.excludedGroupsBase>
+        <surefire.excludedGroups>${surefire.excludedGroupsBase}de.clausohm.vtp.commons.junit.CipOnly
+        </surefire.excludedGroups>
+        <surefire.build_stage>cse</surefire.build_stage>
+
+        <!-- restrict imported-packages to match on major.minor; default is major -->
+        <bundle.consumer_policy>$${range;[==,=+)}</bundle.consumer_policy>
+        <bundle.activator/> <!-- set in child pom if OSGi activator exists -->
+
+        <!-- may be overridden in child projects -->
+        <compiler.javaVersion>1.8</compiler.javaVersion>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.clausohm.elvis.common</groupId>
+            <artifactId>elvis-common-junit</artifactId>
+            <version>1.2.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.3.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>2.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.google.code.maven-replacer-plugin</groupId>
+                    <artifactId>replacer</artifactId>
+                    <version>1.5.2</version>
+                    <!-- 1.5.3 doesn't do it anymore... -->
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>net.alchim31.maven</groupId>
+                    <artifactId>yuicompressor-maven-plugin</artifactId>
+                    <version>1.5.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.22.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>5.1.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.9.1.2184</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.2.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-help-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.xolstice.maven.plugins</groupId>
+                    <artifactId>protobuf-maven-plugin</artifactId>
+                    <version>0.6.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <!-- build-helper-maven-plugin's attach-artifact breaks features-maven-plugin -->
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>attach-artifact-maven-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+
+                <!-- Clausohm -->
+                <plugin>
+                    <groupId>de.clausohm.elvis.mojo</groupId>
+                    <artifactId>version-info-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>de.clausohm.elvis.mojo</groupId>
+                    <artifactId>build-number-maven-plugin</artifactId>
+                    <version>1.8.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.cxf</groupId>
+                    <artifactId>cxf-xjc-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>de.clausohm.elvis.mojo</groupId>
+                <artifactId>build-number-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>set buildNumber</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>set-build-number</goal>
+                        </goals>
+                        <configuration>
+                            <scm>${buildnumber.scm}</scm>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <!-- set {parsedVersion.osgiVersion} property used in gmaven-plugin -->
+                    <execution>
+                        <id>set-osgi-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>parse-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>check for non-SNAPSHOT version outside release build</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                final String version = project.getVersion()
+                                if (!(version.endsWith('-SNAPSHOT') || System.getenv('IS_M2RELEASEBUILD') == 'true')) {
+                                    throw new IllegalStateException('non-SNAPSHOT version ' + version + ' outside release build');
+                                }
+                            </source>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>check for valid release version inside release build</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                if (System.getenv('IS_M2RELEASEBUILD') == 'true') {
+                                    final String releaseVersion = System.getenv('MVN_RELEASE_VERSION')
+                                    final String p = '[a-zA-Z0-9_.-]+'
+                                    if (releaseVersion == null || !releaseVersion.matches(p)) {
+                                        throw new IllegalStateException('Invalid MVN_RELEASE_VERSION "' + releaseVersion + '" does not match ' + p + ' in release build');
+                                    }
+                                }
+                            </source>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- replace 'SNAPSHOT' in {parsedVersion.osgiVersion} property to create {osgi.version} property
+                        used in maven-bundle-plugin and maven-source-plugin -->
+                        <id>set osgi.version property</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <properties>
+                                <time>${maven.build.timestamp}</time>
+                            </properties>
+                            <source>
+                                final String pVersion = project.properties['parsedVersion.osgiVersion']
+                                final String time = properties['time']
+                                final String osgiVersion = pVersion.replaceAll('SNAPSHOT', time)
+                                project.properties['osgi.version'] = osgiVersion
+                                println 'Setting ${osgi.version} ' + osgiVersion
+                            </source>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>skip javadoc generation for non-release builds</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>
+                                final String version = project.getVersion()
+                                if (version.endsWith('-SNAPSHOT')) {
+                                    project.properties['maven.javadoc.skip'] = 'true'
+                                    println 'Setting ${maven.javadoc.skip} ' + true
+                                }
+                            </source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>de.clausohm.elvis.mojo</groupId>
+                        <artifactId>enforcer-rule-dependency-convergence2</artifactId>
+                        <version>1.2.0</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>enforce dependency convergence on {major}.{minor} and ban commons-logging and
+                            de.clausohm.vtp*:*
+                        </id>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence2
+                                        implementation="de.clausohm.vtp.enforcer.DependencyConvergence2">
+                                    <versionPattern>${enforcer.dependencyConvergence.versionPattern}</versionPattern>
+                                </dependencyConvergence2>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>commons-logging:commons-logging</exclude>
+                                        <exclude>de.clausohm.vtp:*</exclude>
+                                        <exclude>de.clausohm.vtp.*:*</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>de.clausohm.vtp.bundles:*</include>
+                                        <!-- following are legacy and not moved to ELVIS yet. Remove them one by one! -->
+                                        <include>de.clausohm.vtp:vtp-commons</include>
+                                        <include>de.clausohm.vtp:vtp-commons-bp</include>
+                                        <include>de.clausohm.vtp:vtp-commons-comm</include>
+                                        <include>de.clausohm.vtp:vtp-commons-itembuffer</include>
+                                        <include>de.clausohm.vtp:vtp-commons-kernel</include>
+                                        <include>de.clausohm.vtp:vtp-commons-kernel-ft</include>
+                                        <include>de.clausohm.vtp:vtp-commons-kernel-multi</include>
+                                        <include>de.clausohm.vtp:vtp-commons-test</include>
+                                        <include>de.clausohm.vtp:vtp-commons-text</include>
+                                        <include>de.clausohm.vtp:vtp-commons-test-kernel</include>
+                                        <include>de.clausohm.vtp:vtp-web-commons</include>
+                                        <include>de.clausohm.vtp:eai-clients</include>
+                                        <include>de.clausohm.vtp:url-protocol-handler</include>
+                                        <include>de.clausohm.vtp.com.google.zxing:zxing</include>
+                                    </includes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>de.clausohm.elvis.mojo</groupId>
+                <artifactId>version-info-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate VersionInfo.java</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                        <configuration>
+                            <javaPackage>${versioninfo.javaPackage}</javaPackage>
+                            <additionalVersionInfoConstantToValue>
+                                <BUILD_TIME>${maven.build.timestamp}</BUILD_TIME>
+                                <BUILD_NUMBER>${buildNumber}</BUILD_NUMBER>
+                            </additionalVersionInfoConstantToValue>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${compiler.javaVersion}</source>
+                    <target>${compiler.javaVersion}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- see https://issues.apache.org/jira/browse/MCOMPILER-209 -->
+                    <!-- compiler-plugin > 3.x have the problem of 'changes detected' where nothing changed triggering useless recompiles -->
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                    <fork>true</fork>
+                    <compilerArguments>
+                        <Xlint:all xmlns:Xlint="xlint"/>
+                    </compilerArguments>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                        <id>prepare-jacoco-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacocoArgs</propertyName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>${jacocoArgs} ${env.MAVEN_OPTS}</argLine>
+                    <groups>${surefire.groups}</groups>
+                    <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+                    <systemProperties>
+                        <property>
+                            <name>build_stage</name>
+                            <value>${surefire.build_stage}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <supportedProjectTypes>
+                        <supportedProjectType>bundle</supportedProjectType>
+                        <supportedProjectType>war</supportedProjectType>
+                        <supportedProjectType>jar</supportedProjectType>
+                    </supportedProjectTypes>
+                    <instructions>
+                        <Build-Time>${maven.build.timestamp}</Build-Time>
+                        <Bundle-Version>$(osgi.version)</Bundle-Version>
+                        <_consumer-policy>${bundle.consumer_policy}</_consumer-policy>
+                        <Bundle-Activator>${bundle.activator}</Bundle-Activator>
+                        <Import-Package>
+                            org.osgi.framework;version="[1.7,2)",
+                            *
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <!-- use the manifest generated by maven-bundle-plugin -->
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <index>false</index>
+                        <manifest>
+                            <addClasspath>false</addClasspath>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <!-- use the manifest generated by maven-bundle-plugin -->
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <index>false</index>
+                        <manifest>
+                            <addClasspath>false</addClasspath>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                            <Bundle-Name>${project.name}.source</Bundle-Name>
+                            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}.source</Bundle-SymbolicName>
+                            <Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+                            <Bundle-Version>${osgi.version}</Bundle-Version>
+                            <Eclipse-SourceBundle>
+                                ${project.groupId}.${project.artifactId};version="${osgi.version}";roots:="."
+                            </Eclipse-SourceBundle>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <useReleaseProfile>false
+                    </useReleaseProfile> <!-- leaving that at default 'true' attaches the sources.jar twice -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>clean_repo</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>delete all de.clausohm artifacts from local maven repo</id>
+                                <phase>clean</phase>
+                                <configuration>
+                                    <target>
+                                        <delete dir="${settings.localRepository}/de/clausohm"/>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>cip</id>
+            <properties>
+                <surefire.excludedGroups>${surefire.excludedGroupsBase}de.clausohm.vtp.commons.junit.CseOnly
+                </surefire.excludedGroups>
+                <surefire.build_stage>cip</surefire.build_stage>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>longtests</id>
+            <properties>
+                <surefire.excludedGroupsBase>de.clausohm.vtp.commons.junit.LiveRegression,</surefire.excludedGroupsBase>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>live-regression</id>
+            <properties>
+                <surefire.groups>de.clausohm.vtp.commons.junit.LiveRegression</surefire.groups>
+                <surefire.excludedGroupsBase/>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>check for non-SNAPSHOT version outside release build</id>
+                                <phase>not_there</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>protoc</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/proto</exists>
+                </file>
+            </activation>
+
+            <properties>
+                <versioninfo.force>true
+                </versioninfo.force> <!-- we want VersionInfo even if all java sources were generated -->
+                <protoc.targetPackage>${versioninfo.javaPackage}
+                </protoc.targetPackage> <!-- override if not good enough -->
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>convert proto target package to folder</id>
+                                <goals>
+                                    <goal>regex-property</goal>
+                                </goals>
+                                <configuration>
+                                    <value>${protoc.targetPackage}</value>
+                                    <name>folder</name>
+                                    <regex>\.</regex>
+                                    <replacement>/</replacement>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy proto to target folder</id>
+                                <phase>generate-sources
+                                </phase> <!-- generate-resources happens after generate-sources -->
+                                <configuration>
+                                    <target>
+                                        <copy todir="${project.build.outputDirectory}/${folder}">
+                                            <fileset dir="src/main/proto/"/>
+                                            <filterset begintoken="${" endtoken="}">
+                                                <filter token="targetPackage" value="${protoc.targetPackage}"/>
+                                            </filterset>
+                                        </copy>
+                                        <!-- just to make life easier for tools like Kreya or BloomRPC -->
+                                        <copy todir="${project.build.directory}">
+                                            <fileset dir="${project.build.outputDirectory}/${folder}"
+                                                     includes="*.proto"/>
+                                        </copy>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>groovy-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>set os.detected.classifier property</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        final String tmp
+                                        if (System.getProperty('os.name').startsWith('Win')) {
+                                            tmp = 'windows-x86_64'
+                                        } else {
+                                            tmp = 'linux-x86_64'
+                                        }
+                                        project.properties['os.detected.classifier'] = tmp;
+                                        println 'Setting ${os.detected.classifier} ' + tmp
+                                    </source>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy proto-imports</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <classpathScope>compile</classpathScope>
+                                    <properties>
+                                        <inputFolder>${project.basedir}/src/main/proto</inputFolder>
+                                        <outputFolder>${project.basedir}/target/proto-imports</outputFolder>
+                                    </properties>
+                                    <source>
+                                <![CDATA[
+                                        import java.nio.charset.StandardCharsets
+                                        import groovy.io.FileType
+                                        import java.util.regex.Pattern
+
+                                        final File outputDir = new File(properties['outputFolder'].toString())
+                                        final File inputDir = new File(properties['inputFolder'].toString())
+
+                                        // The following line has to be like that, because the release plugin messes it up otherwise.
+                                        final Pattern importsRegEx = Pattern.compile('(?<=import ").+(?=";)'); inputDir.eachFile(FileType.FILES) { file ->
+                                            final String contents = new File(file.getCanonicalPath()).getText(StandardCharsets.UTF_8 as String)
+                                            processIncludesAndCopy(importsRegEx, outputDir, contents, null)
+                                        }
+
+                                        void processIncludesAndCopy(Pattern importsRegEx, File outputDir, String contents, File target) {
+                                            final List<String> imports = importsRegEx.matcher(contents).findAll()
+                                            for (String i : imports) {
+                                                if (i == 'google/protobuf/wrappers.proto') {
+                                                    continue
+                                                }
+                                                println 'Processing ' + i
+                                                final URL resource = getClass().getClassLoader().getResource(i)
+                                                if (resource == null) {
+                                                    throw new IllegalStateException('Could not load ' + i)
+                                                }
+                                                final String subContents = resource.text
+                                                final File subTarget = new File(outputDir, i)
+                                                processIncludesAndCopy(importsRegEx, outputDir, subContents, subTarget)
+                                            }
+                                            if (target != null && !target.exists()) {
+                                                target.getParentFile().mkdirs()
+                                                println 'Writing ' + target
+                                                target.write(contents, StandardCharsets.UTF_8 as String)
+                                            }
+                                        }
+                                        ]]></source>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>check for underscores in message names</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <properties>
+                                        <inputFolder>${project.basedir}/src/main/proto</inputFolder>
+                                    </properties>
+                                    <source>
+                                <![CDATA[
+                                        import java.nio.charset.StandardCharsets
+                                        import groovy.io.FileType
+                                        import java.util.regex.Pattern
+                                        import java.nio.file.Files
+
+                                        final File inputDir = new File(properties['inputFolder'].toString())
+
+                                        // the following line needs to look like this as the release-plugin messes up the line breaks
+                                        final Pattern fieldNamePattern = ~/(?= ?)[a-z]\\w+(?= ?= ?\\d+ ?;)/; inputDir.eachFile(FileType.FILES) { file ->
+                                            println 'Checking ' + file.getName()
+                                            final List<String> lines = Files.readAllLines(new File(file.getCanonicalPath()).toPath(), StandardCharsets.UTF_8)
+                                            for (String line : lines) {
+                                                final int index = line.indexOf('//')
+                                                if (index >= 0) {
+                                                    line = line.substring(0, index)
+                                                }
+                                                final List<String> fieldNames = fieldNamePattern.matcher(line).findAll()
+                                                if (fieldNames.isEmpty()) {
+                                                    continue
+                                                }
+                                                final String fieldName = fieldNames.get(0)
+                                                if (fieldName.indexOf('_') >= 0) {
+                                                    throw new IllegalArgumentException(file.getName() + ": field with '_' (" + fieldName + ")")
+                                                }
+                                            }
+                                        }
+                                        ]]></source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.xolstice.maven.plugins</groupId>
+                        <artifactId>protobuf-maven-plugin</artifactId>
+                        <configuration>
+                            <protoSourceRoot>${project.build.outputDirectory}/${folder}</protoSourceRoot>
+                            <protocArtifact>
+                                com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+                            </protocArtifact>
+                            <pluginId>grpc-java</pluginId>
+                            <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+                            </pluginArtifact>
+                            <attachProtoSources>false</attachProtoSources>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                    <goal>compile-custom</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <dependencies>
+                <!-- only the ones needed to compile protoc generated classes -->
+                <dependency>
+                    <groupId>de.clausohm.vtp.bundles</groupId>
+                    <artifactId>de.clausohm.vtp.bundles.grpc-api</artifactId>
+                    <version>${grpc.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>de.clausohm.vtp.bundles</groupId>
+                    <artifactId>de.clausohm.vtp.bundles.grpc-protobuf</artifactId>
+                    <version>${grpc.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>de.clausohm.vtp.bundles</groupId>
+                    <artifactId>de.clausohm.vtp.bundles.grpc-stub</artifactId>
+                    <version>${grpc.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                    <version>${protobuf.version}</version>
+                </dependency>
+                <dependency>
+                    <!-- as in karaf 4.3.3 lib/jdk9plus -->
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>javax.annotation-api</artifactId>
+                    <version>1.3.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+</project>

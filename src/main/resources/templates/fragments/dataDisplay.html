@@ -1,28 +1,38 @@
-<div th:fragment="topRow(result)">
+<div th:fragment="topRow(result)" th:id="${result.getGAV()}" class="top">
     <div class="flex-row">
-        <p th:text="${result.groupId}"/>
-        <p th:text="${result.artifactId}"/>
-        <p th:text="${result.version}"/>
-        <p>
-            Nothing
-        </p>
+        <div class="topRowItem">
+            <p th:text="${result.groupId}"/>
+        </div>
+        <div class="topRowItem">
+            <p th:text="${result.artifactId}"/>
+        </div>
+        <div class="topRowItem">
+            <p th:text="${result.version}"/>
+        </div>
+        <div class="topRowItem">
+            <p class="show-more">
+                Show More
+            </p>
+        </div>
     </div>
-    <div class="bottomRow"
-         th:replace="fragments/dataDisplay :: bottomRow (${result.getDependencies().get(0).getDependency()})"></div>
+    <div class="bottom"
+         th:replace="fragments/dataDisplay :: bottomRow (${result.getDependencies().size() > 0 ? result.getDependencies().get(0).getDependency() : result.getParent()}, ${result.getDependencies().size() == 0 })"></div>
 </div>
 
-<div class="bottomRow" th:fragment="bottomRow(result)">
-    <div class="flex-row">
+<div class="bottom" th:fragment="bottomRow(result, isParent)">
+    <div class="flex-row" th:classappend="${isParent}? parent : none">
         <p th:text="${result.groupId}"/>
         <p th:text="${result.artifactId}"/>
         <p th:text="${result.version}"/>
-        <p>
-
-        </p>
+        <p></p>
     </div>
     <div th:if="${result.getDependencies().size() > 0}">
-        <div class="bottomRow"
-             th:replace="fragments/dataDisplay :: bottomRow (${result.getDependencies().get(0).getDependency()})">
+        <div class="bottom"
+             th:replace="fragments/dataDisplay :: bottomRow (
+             ${result.getDependencies().size() > 0 ?
+             result.getDependencies().get(0).getDependency()
+             : result.getParent()},
+             ${result.getDependencies().size() == 0 })">
         </div>
     </div>
 </div>

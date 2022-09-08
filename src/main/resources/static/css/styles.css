@@ -109,6 +109,9 @@ nav a:hover {
     border-radius: 4px;
     box-sizing: border-box;
 }
+tr td {
+    padding: 0.25rem;
+}
 
 .formGroup {
     display: flex;
@@ -121,10 +124,80 @@ nav a:hover {
     justify-content: space-between;
 }
 
-.flex-row p {
-    flex: 1
+.flex-row > p {
+    width: 25%;
 }
 
-.bottomRow {
+.flex-row > .topRowItem {
+    width: 25%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.even-row {
+    background-color: lightgray;
+}
+
+.top > .flex-row {
+    padding: 0.25rem 0;
+}
+
+.bottom {
     padding-left: 1rem;
 }
+
+.bottom > .flex-row {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.bottom .flex-row:hover {
+    background-color: #6DB33F;
+}
+
+.show-more {
+    background-color: #6DB33F;
+    border-radius: 10px;
+    padding: 0.25rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+.show-more:hover {
+    background-color: #86d950;
+}
+
+.hide {
+    display: none;
+}
+
+.arrow {
+    display: block;
+    color: white;
+    background-color: #6DB33F;
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 50%;
+    line-height: 1.3rem;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bold;
+}
+
+.arrow:hover {
+    background-color: #86d950;
+}
+
+.parent {
+    background-color: darksalmon !important;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+

@@ -14,10 +14,9 @@ public interface ArtifactRepository extends Neo4jRepository<ArtifactEntity, Stri
     @Query("MATCH (n: Artifact) WHERE n.artifactId =~ $artifactId AND n.groupId =~ $groupId AND n.version =~ $version RETURN n")
     List<ArtifactEntity> findArtifactsByRegex(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version);
 
-    @Query("MATCH (n)-[r:DEPENDENCY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE t.version =~ $version RETURN n, collect(r), collect(t)")
-    List<ArtifactEntity> findAllThatUse(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version);
+    @Query("MATCH (n)-[r:DEPENDENCY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE r.scope =~ $scope AND t.version =~ $version RETURN n, collect(r), collect(t)")
+    List<ArtifactEntity> findAllThatUse(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version, @Param("scope") String scope);
 
-    @Query("MATCH (c: Artifact)-[pr:PARENT]->(p: Artifact)-[d:DEPENENDENY]->(t: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE t.version =~ $version RETURN c, collect(r), collect(t)")
+    @Query("MATCH (c: Artifact)-[pr:PARENT]->(p: Artifact { artifactId: $artifactId, groupId: $groupId }) WHERE p.version =~ $version RETURN c")
     List<ArtifactEntity> findAllThatParentUse(@Param("artifactId") String artifactId, @Param("groupId") String groupId, @Param("version") String version);
-
 }
