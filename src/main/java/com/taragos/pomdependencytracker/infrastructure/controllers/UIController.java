@@ -31,6 +31,11 @@ public class UIController {
     }
 
 
+    @GetMapping("/ui/status")
+    public String status() {
+        return "status";
+    }
+
     @RequestMapping("/ui/artifacts")
     public String artifactSearch(
     ) {
