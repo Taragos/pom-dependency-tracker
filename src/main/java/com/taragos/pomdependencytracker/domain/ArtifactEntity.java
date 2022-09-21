@@ -7,8 +7,12 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.*;
 
+/**
+ * Class for holding the Information of a Maven Artifact and it's relationships
+ */
 @Node("Artifact")
 public class ArtifactEntity {
+
 
     @Id
     @GeneratedValue(generatorClass = ArtifactIdGenerator.class)
@@ -75,6 +79,12 @@ public class ArtifactEntity {
         this.dependencies.add(dependency);
     }
 
+    /**
+     * Replaces an old dependency with an updated one. Based on the groupID and artifactID of the depended on artifact.
+     * Example Use Case: Artifact A depends on a newer version of Artifact B.
+     *
+     * @param dependency new dependency
+     */
     public void replaceDependencyIfContained(DependencyRelationship dependency) {
         for (DependencyRelationship d : dependencies) {
             if (d.getDependency().equalsSimple(dependency.getDependency())) {
@@ -83,22 +93,6 @@ public class ArtifactEntity {
                 break;
             }
         }
-    }
-
-    public Set<Long> copyIds(ArtifactEntity artifact) {
-        final Set<Long> removableDependencies = new HashSet<>();
-
-        for (DependencyRelationship d : artifact.getDependencies()) {
-            final int i = dependencies.indexOf(d);
-            if (i != -1) {
-                final DependencyRelationship withId = dependencies.get(i);
-                withId.setId(d.getId());
-                removableDependencies.addAll(withId.getDependency().copyIds(d.getDependency()));
-            } else {
-                removableDependencies.add(d.getId());
-            }
-        }
-        return removableDependencies;
     }
 
     /**
@@ -110,6 +104,9 @@ public class ArtifactEntity {
         return Objects.equals(groupId, a.groupId) && Objects.equals(artifactId, a.artifactId);
     }
 
+    /**
+     * Equal check based on the GAV parameters
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
