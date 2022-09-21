@@ -1,7 +1,6 @@
 package com.taragos.pomdependencytracker.infrastructure.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Global configuration for the security aspect of this application.
+ * Defines the basic authentication used for the routes.
+ */
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -19,7 +22,6 @@ public class WebSecurityConfig {
     String userUsername;
     @Value("${spring.auth.user.password}")
     String userPassword;
-
 
     @Value("${spring.auth.system.username}")
     String systemUsername;
@@ -39,6 +41,12 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    /**
+     * Defines the two basic authentication credentials pairs that can be used for authentication.
+     *      USER -> Basic Authentication for any real person wanting to use the UI.
+     *      SYSTEM -> Basic Authentication used by automated systems to import information.
+     * @return an InMemoryUserDetailsManager filled with the credential pairs
+     */
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         final UserDetails user = User

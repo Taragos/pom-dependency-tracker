@@ -17,6 +17,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 
+/**
+ * Used to parse a maven POM into an ArtifactEntity. Uses SAX parsing.
+ */
 @Component
 public class POMParser extends DefaultHandler implements Parser {
 
@@ -26,6 +29,13 @@ public class POMParser extends DefaultHandler implements Parser {
 
     private ArtifactEntity artifactEntity;
 
+    /**
+     * Main function to parse a maven POM into an artifactEntity
+     *
+     * @param input a maven POM XML
+     * @return an ArtifactEntity filled with the information from the input
+     * @throws FieldParseException thrown when a field could not be parsed
+     */
     @Override
     public ArtifactEntity parse(String input) throws FieldParseException {
         final SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
@@ -41,6 +51,11 @@ public class POMParser extends DefaultHandler implements Parser {
         return artifactEntity;
     }
 
+    /**
+     * Checks whether the current enclosing tag is relevant for the information of a maven ArtifactEntity
+     * Plugins and Profile dependencies are ignored.
+     * @return true or false
+     */
     private boolean inRelevantTag() {
         return !(elementStack.contains("plugins") || elementStack.contains("profile"));
     }
