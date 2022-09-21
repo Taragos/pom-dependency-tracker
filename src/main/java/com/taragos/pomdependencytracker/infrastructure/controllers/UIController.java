@@ -30,6 +30,7 @@ public class UIController {
 
     /**
      * Function for handling the Home-Route of the UI. Returns the home.html thymeleaf template.
+     *
      * @return /src/main/resources/templates/home.html
      */
     @GetMapping("/ui/")
@@ -37,12 +38,29 @@ public class UIController {
         return "home";
     }
 
+    /**
+     * Function for handling the Artifact-Search-Route of the UI. Returns the artifactSearch.html thymeleaf template.
+     *
+     * @return /src/main/resources/templates/artifactSearch.html
+     */
     @RequestMapping("/ui/artifacts")
     public String artifactSearch(
     ) {
         return "artifactSearch";
     }
 
+    /**
+     * Function for handling an artifact search via the UI. Returns the artifactSearch.html thymeleaf template filled
+     * with information from the artifactRepository.
+     * Based on the parameters of the request the artifactRepository is queried for artifacts which will be shown on the UI.
+     *
+     * @param groupId    groupID regex of the artifacts to search for
+     * @param artefactId artifactID regex of the artifacts to search for
+     * @param version    version regex of the artifacts to search for
+     * @param showLatest boolean flag to indicate whether the last version of each artifact found should be shown, default = false
+     * @param model      Spring Boot UI model for holding the parameters used in filling the template later on
+     * @return filled thymeleaf template based on /src/main/resources/templates/artifactSearch.html
+     */
     @RequestMapping("/ui/artifacts/search")
     public String artifactSearch(
             @RequestParam(value = "groupId", required = false, defaultValue = ".*") String groupId,
@@ -69,25 +87,47 @@ public class UIController {
     }
 
 
+    /**
+     * Function for handling the Dependencies-Search-Route of the UI. Returns the dependenciesSearch.html thymeleaf template.
+     *
+     * @return /src/main/resources/templates/dependenciesSearch.html
+     */
     @RequestMapping("/ui/dependencies")
     public String dependenciesSearch(
     ) {
         return "dependenciesSearch";
     }
 
+    /**
+     * Function for handling the dependency search via the UI. Returns the dependenciesSearch.html thymeleaf template
+     * filled with information from the artifactRepository.
+     * Based on the parameters of the request the artifactRepository is queried for artifacts and their relations
+     * which will be shown on the UI.
+     * If the direct-parameter is false, this will trigger a recursive search that also display artifacts that are
+     * indirectly connect to the base artifact.
+     * Examples (A is the base artifact that is searched for):
+     *      - B depends A. C depends on B -> C indirectly depends on A
+     *      - B is a child of A. C depends on B -> C indirectly depends on A
+     *
+     * @param groupId    groupID of the artifact to base the search on
+     * @param artifactId artifactID of the artifact to base the search on
+     * @param version    version regex of the artifact to base the search on
+     * @param scope      scope parameter to restrict the relationships between artifacts to certain scope
+     * @param direct     only show related artifacts, if they are directly related
+     * @param model      Spring Boot UI model for holding the parameters used in filling the template later on
+     * @return filled thymeleaf template based on /src/main/resources/templates/artifactSearch.html
+     */
     @RequestMapping("/ui/dependencies/search")
     public String dependenciesSearch(
             @RequestParam(value = "groupId") String groupId,
             @RequestParam(value = "artifactId") String artifactId,
             @RequestParam(value = "version", defaultValue = ".*") String version,
             @RequestParam(value = "scope", required = false, defaultValue = ".*") String scope,
-            @RequestParam(value = "timeCutoff", required = false) Date timeCutoff,
-            @RequestParam(value = "artifactFilter", required = false, defaultValue = ".*") List<String> artifactFilter,
             @RequestParam(value = "direct", required = false, defaultValue = "false") boolean direct,
             Model model
     ) {
         final List<ArtifactEntity> results = artifactRepository.findAllThatUse(artifactId, groupId, version, scope);
-        final List<ArtifactEntity> parentUse = artifactRepository.findAllThatParentUse(artifactId, groupId, version);
+        final List<ArtifactEntity> parentUse = artifactRepository.findAllChildren(artifactId, groupId, version);
 
         ArtifactEntity parent = new ArtifactEntity();
         parent.setArtifactId(artifactId);
@@ -107,7 +147,7 @@ public class UIController {
             final ArtifactEntity next = queue.pop();
 
             // Check if it is parent of something -> Children should also be checked
-            final List<ArtifactEntity> childrenOfCurrentIteration = artifactRepository.findAllThatParentUse(next.getArtifactId(), next.getGroupId(), next.getVersion());
+            final List<ArtifactEntity> childrenOfCurrentIteration = artifactRepository.findAllChildren(next.getArtifactId(), next.getGroupId(), next.getVersion());
 
             for (ArtifactEntity entity : childrenOfCurrentIteration) {
                 entity.setParent(next);
