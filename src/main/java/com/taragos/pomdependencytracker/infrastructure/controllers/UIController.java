@@ -16,6 +16,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+/**
+ * This controller is used to parse and deliver the UI via thymeleaf templates.
+ */
 @Controller("/ui")
 public class UIController {
     final ArtifactRepository artifactRepository;
@@ -25,15 +28,13 @@ public class UIController {
         this.artifactRepository = artifactRepository;
     }
 
+    /**
+     * Function for handling the Home-Route of the UI. Returns the home.html thymeleaf template.
+     * @return /src/main/resources/templates/home.html
+     */
     @GetMapping("/ui/")
     public String home() {
         return "home";
-    }
-
-
-    @GetMapping("/ui/status")
-    public String status() {
-        return "status";
     }
 
     @RequestMapping("/ui/artifacts")
