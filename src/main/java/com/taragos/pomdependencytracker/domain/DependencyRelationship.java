@@ -7,6 +7,9 @@ import org.springframework.data.neo4j.core.schema.TargetNode;
 
 import java.util.Objects;
 
+/**
+ * Class to hold information about a relationship between two artifact entites
+ */
 @RelationshipProperties
 public class DependencyRelationship {
 

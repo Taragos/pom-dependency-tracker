@@ -5,6 +5,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Class representing a request to import information.
+ * Information consists of at least a maven pom xml and the output of 'mvn dependency:tree'.
+ * Optionally additional dependencies can be included.
+ */
 public class ImportRequestModel {
     private MultipartFile pom;
     private MultipartFile dependencyTree;
