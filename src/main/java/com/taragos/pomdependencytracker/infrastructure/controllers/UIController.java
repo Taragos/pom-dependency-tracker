@@ -1,9 +1,8 @@
 package com.taragos.pomdependencytracker.infrastructure.controllers;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
-import com.taragos.pomdependencytracker.domain.DependencyRelationship;
 import com.taragos.pomdependencytracker.infrastructure.repositories.ArtifactRepository;
-import org.apache.maven.artifact.versioning.ComparableVersion;
+import com.taragos.pomdependencytracker.infrastructure.services.SearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -12,8 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 
 /**
@@ -21,11 +19,11 @@ import java.util.stream.Collectors;
  */
 @Controller("/ui")
 public class UIController {
-    final ArtifactRepository artifactRepository;
-    final private Logger LOG = LoggerFactory.getLogger(UIController.class);
 
-    public UIController(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
+    final private SearchService searchService;
+
+    public UIController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     /**
@@ -69,20 +67,8 @@ public class UIController {
             @RequestParam(value = "showLatest", required = false, defaultValue = "false") boolean showLatest,
             Model model
     ) {
-        final List<ArtifactEntity> artifactsByRegex = artifactRepository.findArtifactsByRegex(artefactId, groupId, version);
-        if (showLatest) {
-            final Map<String, List<ArtifactEntity>> collect = artifactsByRegex.stream().collect(Collectors.groupingBy(a -> a.getGroupId() + a.getArtifactId()));
-            final List<ArtifactEntity> sorted = new ArrayList<>();
-            for (Map.Entry<String, List<ArtifactEntity>> group : collect.entrySet()) {
-                final List<ArtifactEntity> artifacts = group.getValue();
-                final Comparator<ArtifactEntity> comparing = Comparator.comparing(a -> new ComparableVersion(a.getVersion()));
-                artifacts.sort(comparing.reversed());
-                sorted.add(artifacts.get(0));
-            }
-            model.addAttribute("artifacts", sorted);
-        } else {
-            model.addAttribute("artifacts", artifactsByRegex);
-        }
+        final List<ArtifactEntity> artifacts = searchService.findArtifactsByRegex(artefactId, groupId, version, showLatest);
+        model.addAttribute("artifacts", artifacts);
         return "artifactSearch";
     }
 
@@ -106,8 +92,8 @@ public class UIController {
      * If the direct-parameter is false, this will trigger a recursive search that also display artifacts that are
      * indirectly connect to the base artifact.
      * Examples (A is the base artifact that is searched for):
-     *      - B depends A. C depends on B -> C indirectly depends on A
-     *      - B is a child of A. C depends on B -> C indirectly depends on A
+     * - B depends A. C depends on B -> C indirectly depends on A
+     * - B is a child of A. C depends on B -> C indirectly depends on A
      *
      * @param groupId    groupID of the artifact to base the search on
      * @param artifactId artifactID of the artifact to base the search on
@@ -126,51 +112,13 @@ public class UIController {
             @RequestParam(value = "direct", required = false, defaultValue = "false") boolean direct,
             Model model
     ) {
-        final List<ArtifactEntity> results = artifactRepository.findAllThatUse(artifactId, groupId, version, scope);
-        final List<ArtifactEntity> parentUse = artifactRepository.findAllChildren(artifactId, groupId, version);
 
-        ArtifactEntity parent = new ArtifactEntity();
-        parent.setArtifactId(artifactId);
-        parent.setGroupId(groupId);
-        parent.setVersion(version);
-
-        for (ArtifactEntity entity : parentUse) {
-            entity.setParent(parent);
+        if (direct) {
+            model.addAttribute("results", searchService.findAllDirectDependencies(artifactId, groupId, version, scope));
+        } else {
+            model.addAttribute("results", searchService.findAllDependencies(artifactId, groupId, scope, version));
         }
 
-        results.addAll(parentUse);
-
-        final Stack<ArtifactEntity> queue = new Stack<ArtifactEntity>();
-        queue.addAll(results);
-
-        while (!direct && !queue.isEmpty()) {
-            final ArtifactEntity next = queue.pop();
-
-            // Check if it is parent of something -> Children should also be checked
-            final List<ArtifactEntity> childrenOfCurrentIteration = artifactRepository.findAllChildren(next.getArtifactId(), next.getGroupId(), next.getVersion());
-
-            for (ArtifactEntity entity : childrenOfCurrentIteration) {
-                entity.setParent(next);
-            }
-            queue.addAll(childrenOfCurrentIteration);
-
-
-            results.addAll(childrenOfCurrentIteration);
-
-            LOG.debug("Searching for uses of Artifact: {}", next.getGAV());
-            final List<ArtifactEntity> currentIterationResults = artifactRepository.findAllThatUse(next.getArtifactId(), next.getGroupId(), next.getVersion(), scope);
-
-            for (ArtifactEntity result : currentIterationResults) {
-                DependencyRelationship dependencyRelationship = result.getDependencies().get(0);
-                dependencyRelationship.setDependency(next);
-            }
-
-            results.addAll(currentIterationResults);
-
-            queue.addAll(currentIterationResults);
-        }
-
-        model.addAttribute("results", results);
         return "dependenciesSearch";
     }
 }
