@@ -46,6 +46,10 @@ jobs:
       - name: Maven Build
         run: mvn clean package
 
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
+
       - name: Configure git
         if: ${{ github.event.inputs.doRelease }}
         run: |
