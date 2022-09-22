@@ -2,14 +2,13 @@ package com.taragos.pomdependencytracker.infrastructure.services;
 
 import com.taragos.pomdependencytracker.domain.ArtifactEntity;
 import com.taragos.pomdependencytracker.domain.DependencyRelationship;
-import com.taragos.pomdependencytracker.domain.ImportRequestModel;
 import com.taragos.pomdependencytracker.exceptions.FieldParseException;
 import com.taragos.pomdependencytracker.infrastructure.parser.DependencyTreeParser;
 import com.taragos.pomdependencytracker.infrastructure.parser.POMParser;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Utility service that contains the logic for parsing a maven pom and dependency tree output into an ArtifactEntity.
@@ -33,15 +32,14 @@ public class ParserService {
      * Receives an importRequest that contains a maven pom and the dependency:tree output and parses it into an
      * ArtifactEntity.
      *
-     * @param importRequest importRequest, containing a maven pom and the dependency:tree output
+     * @param pom                    pom.xml as string
+     * @param dependencyTree         mvn dependency:tree output as string
+     * @param additionalDependencies list of gav-coordinates that are additional dependences
      * @return an ArtifactEntity filled with the information from the importRequest
      * @throws FieldParseException thrown when a parser can't parse a field from their input
      * @throws IOException         thrown when an input couldn't be converted to bytes
      */
-    public ArtifactEntity parse(@NonNull ImportRequestModel importRequest) throws FieldParseException, IOException {
-        final String dependencyTree = new String(importRequest.getDependencyTree().getBytes());
-        final String pom = new String(importRequest.getPom().getBytes());
-
+    public ArtifactEntity parse(String pom, String dependencyTree, List<String> additionalDependencies) throws FieldParseException, IOException {
         final ArtifactEntity treeArtifact = dependencyTreeParser.parse(dependencyTree);
         final ArtifactEntity pomArtifact = pomParser.parse(pom);
 
@@ -53,7 +51,7 @@ public class ParserService {
             pomArtifact.replaceDependencyIfContained(d);
         }
 
-        for (String dep : importRequest.getAdditionalDependencies()) {
+        for (String dep : additionalDependencies) {
             DependencyRelationship dependencyRelationship = new DependencyRelationship(dep);
             pomArtifact.addDependency(dependencyRelationship);
         }
