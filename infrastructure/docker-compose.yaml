@@ -1,5 +1,22 @@
 version: "3.9"
 services:
+  pom-dependency-tracker:
+    image: docker.io/taragos/pom-dependency-tracker:main
+    environment:
+      NEO4J_URI: "bolt://neo4j:7687"
+      NEO4J_AUTH_USERNAME: "neo4j"
+      NEO4J_AUTH_PASSWORD: "test"
+      USER_AUTH_USERNAME: "user"
+      USER_AUTH_PASSWORD: "userPassword"
+      SYSTEM_AUTH_USERNAME: "system"
+      SYSTEM_AUTH_PASSWORD: "systemPassword"
+    ports:
+      - "8080:8080"
+    links:
+      - "neo4j:neo4j"
+    depends_on:
+      - neo4j
+
   neo4j:
     image: neo4j:latest
     environment:
