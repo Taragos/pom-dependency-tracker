@@ -18,8 +18,16 @@ import java.io.IOException;
  * @param dependencyTreeParser Reference to a DependencyTreeParser object, used to parse 'mvn dependency:tree' output
  */
 @Service
-public record ParserService(POMParser pomParser,
-                            DependencyTreeParser dependencyTreeParser) {
+public class ParserService {
+
+    private final POMParser pomParser;
+    private final DependencyTreeParser dependencyTreeParser;
+
+    public ParserService(POMParser pomParser, DependencyTreeParser dependencyTreeParser) {
+        this.pomParser = pomParser;
+        this.dependencyTreeParser = dependencyTreeParser;
+    }
+
 
     /**
      * Receives an importRequest that contains a maven pom and the dependency:tree output and parses it into an
