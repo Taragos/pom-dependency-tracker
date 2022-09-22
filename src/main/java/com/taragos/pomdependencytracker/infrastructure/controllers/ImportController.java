@@ -46,7 +46,9 @@ public class ImportController {
         LOG.debug("POM: {}", importRequest.getPom());
         LOG.debug("DependencyTree: {}", importRequest.getDependencyTree());
         LOG.debug("Additional Dependencies: {}", importRequest.getAdditionalDependencies());
-        final ArtifactEntity artifact = parserService.parse(importRequest);
+        final String pom = new String(importRequest.getPom().getBytes());
+        final String dependencyTree = new String(importRequest.getDependencyTree().getBytes());
+        final ArtifactEntity artifact = parserService.parse(pom, dependencyTree, importRequest.getAdditionalDependencies());
         LOG.info("importing artifact: {} - with {} direct dependencies", artifact.getGAV(), artifact.getDependencies().size());
         return importService.importArtifact(artifact);
     }
