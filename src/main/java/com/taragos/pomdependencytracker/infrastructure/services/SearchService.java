@@ -4,9 +4,11 @@ import com.taragos.pomdependencytracker.infrastructure.repositories.ArtifactRepo
 import org.springframework.stereotype.Service;
 
 @Service
-public record SearchService(
-        ArtifactRepository artifactRepository) {
+public class SearchService {
 
+    private final ArtifactRepository artifactRepository;
 
-
+    public SearchService(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 }

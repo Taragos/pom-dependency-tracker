@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -16,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig  {
 
     @Value("${spring.auth.user.username}")
     String userUsername;
@@ -33,7 +34,6 @@ public class WebSecurityConfig {
 
         http
                 .csrf().disable()
-                .authorizeRequests((requests) -> requests.antMatchers("/ui/status").permitAll())
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .httpBasic();

@@ -9,8 +9,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public record ImportService(
-        ArtifactRepository artifactRepository) {
+public class ImportService {
+
+    private final ArtifactRepository artifactRepository;
+
+    public ImportService(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 
     public ArtifactEntity importArtifact(ArtifactEntity pomArtifact) {
         copyIds(pomArtifact);
