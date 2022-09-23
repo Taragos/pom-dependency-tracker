@@ -33,6 +33,8 @@ public class WebSecurityConfig  {
 
         http
                 .csrf().disable()
+                .authorizeRequests((requests) -> requests.antMatchers("/actuator/health").permitAll())
+                .authorizeRequests((requests) -> requests.antMatchers("/actuator/health/*").permitAll())
                 .authorizeRequests().anyRequest().authenticated()
                 .and()
                 .httpBasic();
