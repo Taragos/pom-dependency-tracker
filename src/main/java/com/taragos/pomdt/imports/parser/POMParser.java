@@ -102,7 +102,6 @@ public class POMParser extends DefaultHandler implements Parser {
 
         if ("project".equalsIgnoreCase(qName)) {
             this.artifactEntity = artifactBuilders.pop();
-            return;
         }
     }
 

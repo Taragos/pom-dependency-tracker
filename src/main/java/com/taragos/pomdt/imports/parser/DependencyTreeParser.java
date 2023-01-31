@@ -3,6 +3,8 @@ package com.taragos.pomdt.imports.parser;
 import com.taragos.pomdt.domain.ArtifactEntity;
 import com.taragos.pomdt.domain.DependencyRelationship;
 import com.taragos.pomdt.exceptions.FieldParseException;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -93,6 +95,13 @@ public class DependencyTreeParser implements Parser {
         final String[] fields = artifactString.split(":");
 
 
+        if (fields.length >= 6) {
+            return new DependencyRelationship(
+                    fields[2],
+                    fields[5],
+                    dependencyArtifact
+            );
+        }
         return new DependencyRelationship(
                 fields[2],
                 fields[4],
@@ -114,8 +123,14 @@ public class DependencyTreeParser implements Parser {
         final ArtifactEntity artifact = new ArtifactEntity();
         artifact.setGroupId(fields[0]);
         artifact.setArtifactId(fields[1]);
-        // Ignore 2 since it is the type field, which is not required for the artifact itself
-        artifact.setVersion(fields[3]);
+
+        // If there are more than 6 fields, there is a classifier contained within
+        if (fields.length >= 6) {
+            artifact.setVersion(fields[4]);
+        } else {
+            // Ignore 2 since it is the type field, which is not required for the artifact itself
+            artifact.setVersion(fields[3]);
+        }
 
         return artifact;
     }

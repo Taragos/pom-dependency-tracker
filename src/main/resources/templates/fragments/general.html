@@ -2,13 +2,13 @@
   <h1>POM Dependency Tracker</h1>
   <nav>
     <a
-      th:classappend="${#httpServletRequest.requestURI == '/ui/artifacts'} ? 'selected' : ''"
+      th:classappend="${#httpServletRequest.requestURI.contains('/ui/artifacts')} ? 'selected' : ''"
       th:href="@{/ui/artifacts}"
       >Artifact-Search</a
     >
     <a
-      th:classappend="${#httpServletRequest.requestURI == '/ui/dependencies'} ? 'selected' : ''"
-      th:href="@{/ui/dependencies}"
+      th:classappend="${#httpServletRequest.requestURI.contains('/ui/dependencies')} ? 'selected' : ''"
+      th:href="@{|/ui/dependencies|}"
       >Dependency-Search</a
     >
   </nav>

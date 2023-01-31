@@ -8,13 +8,7 @@
 </head>
 <body>
 <div class="container">
-    <header>
-        <h1 th:text="'POM Dependency Tracker'"/>
-        <nav>
-            <a href="/ui/artifacts">Artefact-Search</a>
-            <a href="/ui/dependencies">Dependency-Search</a>
-        </nav>
-    </header>
+    <header th:replace="fragments/general.html :: my_header"></header>
 </div>
 </body>
 </html>

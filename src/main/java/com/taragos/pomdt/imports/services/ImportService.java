@@ -5,6 +5,7 @@ import com.taragos.pomdt.domain.DependencyRelationship;
 import com.taragos.pomdt.repositories.ArtifactRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +19,27 @@ public class ImportService {
     }
 
     public ArtifactEntity importArtifact(ArtifactEntity pomArtifact) {
+        removeParentDependencies(pomArtifact);
         copyIds(pomArtifact);
 
         return artifactRepository.save(pomArtifact);
+    }
+
+    /**
+     * Tries to retrieve existing parent from artifact repository and removes duplicat dependencies from child.
+     * @param pomArtifact
+     */
+    private void removeParentDependencies(ArtifactEntity pomArtifact) {
+        Optional<ArtifactEntity> parent = artifactRepository.findById(pomArtifact.getParent().getGAV());
+        if (parent.isPresent()) {
+            final List<DependencyRelationship> dependencies = parent.get().getDependencies();
+            final List<DependencyRelationship> tempPomDependencies = new ArrayList<>(pomArtifact.getDependencies());
+            for (DependencyRelationship dependency : dependencies) {
+                tempPomDependencies.remove(dependency);
+            }
+            pomArtifact.setDependencies(tempPomDependencies);
+        }
+
     }
 
     //https://stackoverflow.com/questions/52567345/duplicate-relationships-where-relationship-entity-has-an-attribute

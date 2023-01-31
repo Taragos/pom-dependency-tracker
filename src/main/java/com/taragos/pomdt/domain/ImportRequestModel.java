@@ -2,7 +2,9 @@ package com.taragos.pomdt.domain;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class representing a request to import information.
@@ -16,9 +18,9 @@ public class ImportRequestModel {
     /**
      * Comma-seperated List
      */
-    private List<String> additionalDependencies;
+    private MultipartFile additionalDependencies;
 
-    public ImportRequestModel(MultipartFile pom, MultipartFile dependencyTree, List<String> additionalDependencies) {
+    public ImportRequestModel(MultipartFile pom, MultipartFile dependencyTree, MultipartFile additionalDependencies) {
         this.pom = pom;
         this.dependencyTree = dependencyTree;
         this.additionalDependencies = additionalDependencies;
@@ -40,11 +42,11 @@ public class ImportRequestModel {
         this.dependencyTree = dependencyTree;
     }
 
-    public List<String> getAdditionalDependencies() {
+    public MultipartFile getAdditionalDependencies() {
         return additionalDependencies;
     }
 
-    public void setAdditionalDependencies(List<String> additionalDependencies) {
+    public void setAdditionalDependencies(MultipartFile additionalDependencies) {
         this.additionalDependencies = additionalDependencies;
     }
 }

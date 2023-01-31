@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This controller is responsible for all API routes that handle importing information into the system.
@@ -21,7 +24,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/import")
 public class ImportController {
-    final private Logger LOG = LoggerFactory.getLogger(ImportController.class);
+    private final Logger LOG = LoggerFactory.getLogger(ImportController.class);
 
     private final ParserService parserService;
     private final ImportService importService;
@@ -48,7 +51,12 @@ public class ImportController {
         LOG.debug("Additional Dependencies: {}", importRequest.getAdditionalDependencies());
         final String pom = new String(importRequest.getPom().getBytes());
         final String dependencyTree = new String(importRequest.getDependencyTree().getBytes());
-        final ArtifactEntity artifact = parserService.parse(pom, dependencyTree, importRequest.getAdditionalDependencies());
+        final List<String> additionalDependencies = new ArrayList<String>();
+        if (importRequest.getAdditionalDependencies() != null) {
+            String[] s = new String(importRequest.getAdditionalDependencies().getBytes()).split("\n");
+            additionalDependencies.addAll(Arrays.asList(s));
+        }
+        final ArtifactEntity artifact = parserService.parse(pom, dependencyTree, additionalDependencies);
         LOG.info("importing artifact: {} - with {} direct dependencies", artifact.getGAV(), artifact.getDependencies().size());
         return importService.importArtifact(artifact);
     }

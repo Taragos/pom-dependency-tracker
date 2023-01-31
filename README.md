@@ -41,3 +41,18 @@ docker run -p 8080:8080 \
 * [x] You document important design decisions including rationales.
 * [ ] You comment your source code to make it easier for humans to understand.
 * [ ] You prepare test data and perform adequate software tests.
+
+
+## Config for local tests
+
+```properties
+spring.neo4j.uri=bolt://localhost:7687
+spring.neo4j.authentication.username=neo4j
+spring.neo4j.authentication.password=password
+spring.auth.user.username=user
+spring.auth.user.password=password
+spring.auth.system.username=system
+spring.auth.system.password=password
+management.endpoint.health.probes.enabled=true
+server.servlet.context-path=/elvis.pom-dependency-tracker/
+```

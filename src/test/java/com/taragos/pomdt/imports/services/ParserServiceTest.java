@@ -11,14 +11,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 class ParserServiceTest {
 
     private static String pom;
     private static String dependencyTree;
+    private static List<String> additionalDependencies;
 
     private static ParserService parserService;
 
@@ -32,6 +31,9 @@ class ParserServiceTest {
         final InputStream inputStreamDt = Objects.requireNonNull(classLoader.getResourceAsStream("dependencyTree.txt"));
         dependencyTree = new String(inputStreamDt.readAllBytes());
 
+        final InputStream inputStreamAd = Objects.requireNonNull(classLoader.getResourceAsStream("additionalDependencies.txt"));
+        additionalDependencies = Arrays.asList(new String(inputStreamAd.readAllBytes()).split("\n"));
+
         final POMParser pomParser = new POMParser();
         final DependencyTreeParser dependencyTreeParser = new DependencyTreeParser();
         parserService = new ParserService(pomParser, dependencyTreeParser);
@@ -39,8 +41,6 @@ class ParserServiceTest {
 
     @Test
     void parse() throws Exception {
-        ArrayList<String> additionalDependencies = new ArrayList<>();
-        additionalDependencies.add("com.test:test-a:0.0.1");
         final ArtifactEntity parse = parserService.parse(pom, dependencyTree, additionalDependencies);
 
         // Correclty parsed artifact
@@ -57,7 +57,7 @@ class ParserServiceTest {
         Assertions.assertEquals("2.6.4", parent.getVersion());
 
         // Correctly parsed and merged dependencies from pom + tree + additional
-        Assertions.assertEquals(7, parse.getDependencies().size());
+        Assertions.assertEquals(42, parse.getDependencies().size());
 
         final Optional<DependencyRelationship> optionalDep = parse
                 .getDependencies()

@@ -1,6 +1,8 @@
 package com.taragos.pomdt.domain;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.schema.RelationshipId;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
@@ -12,6 +14,7 @@ import java.util.Objects;
  */
 @RelationshipProperties
 public class DependencyRelationship {
+    final private Logger LOG = LoggerFactory.getLogger(DependencyRelationship.class);
 
     private String type = "jar";
 
@@ -32,6 +35,7 @@ public class DependencyRelationship {
     }
 
     public DependencyRelationship(String GAV) {
+        LOG.debug("New DependencyRelationship based on: {}", GAV);
         String[] split = GAV.split(":");
         final String groupId = split[0];
         final String artifactID = split[1];
@@ -80,12 +84,16 @@ public class DependencyRelationship {
         this.dependency = dependency;
     }
 
+    public String getIdentifier() {
+        return this.getDependency().getGAV() + ":" + getScope() + ":" + getType();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DependencyRelationship that = (DependencyRelationship) o;
-        return Objects.equals(dependency, that.dependency);
+        return that.getIdentifier().equals(this.getIdentifier());
     }
 
     @Override

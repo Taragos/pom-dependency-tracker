@@ -109,11 +109,10 @@ public class UIController {
             @RequestParam(value = "direct", required = false, defaultValue = "false") boolean direct,
             Model model
     ) {
-
         if (direct) {
             model.addAttribute("results", searchService.findAllDirectDependencies(artifactId, groupId, version, scope));
         } else {
-            model.addAttribute("results", searchService.findAllDependencies(artifactId, groupId, scope, version));
+            model.addAttribute("results", searchService.findAllDependencies(artifactId, groupId, version, scope));
         }
 
         return "dependenciesSearch";

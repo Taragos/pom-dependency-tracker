@@ -3,8 +3,11 @@ package com.taragos.pomdt.imports.services;
 import com.taragos.pomdt.domain.ArtifactEntity;
 import com.taragos.pomdt.domain.DependencyRelationship;
 import com.taragos.pomdt.exceptions.FieldParseException;
+import com.taragos.pomdt.imports.controller.ImportController;
 import com.taragos.pomdt.imports.parser.DependencyTreeParser;
 import com.taragos.pomdt.imports.parser.POMParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,6 +21,7 @@ import java.util.List;
  */
 @Service
 public class ParserService {
+    private final Logger LOG = LoggerFactory.getLogger(ParserService.class);
 
     private final POMParser pomParser;
     private final DependencyTreeParser dependencyTreeParser;
@@ -51,9 +55,14 @@ public class ParserService {
             pomArtifact.replaceDependencyIfContained(d);
         }
 
+        final String GAV_REGEX = "^[a-zA-Z0-9._\\\\-]*:[a-zA-Z0-9.\\\\-_]*:[a-zA-Z0-9.\\\\-_]*";
         for (String dep : additionalDependencies) {
-            DependencyRelationship dependencyRelationship = new DependencyRelationship(dep);
-            pomArtifact.addDependency(dependencyRelationship);
+            if (dep.matches(GAV_REGEX)) {
+                final DependencyRelationship dependencyRelationship = new DependencyRelationship(dep);
+                pomArtifact.addDependency(dependencyRelationship);
+            } else {
+                LOG.debug("Input from additionalDependencies does not match the GAV_REGEX: {}", dep);
+            }
         }
 
         return pomArtifact;

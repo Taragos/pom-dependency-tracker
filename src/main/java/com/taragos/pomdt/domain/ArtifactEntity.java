@@ -5,7 +5,9 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Class for holding the Information of a Maven Artifact and it's relationships
@@ -89,16 +91,17 @@ public class ArtifactEntity {
         for (DependencyRelationship d : dependencies) {
             if (d.getDependency().equalsSimple(dependency.getDependency())) {
                 dependencies.remove(d);
-                dependencies.add(dependency);
                 break;
             }
         }
+        dependencies.add(dependency);
     }
 
     /**
      * Only checks whether two artifacts share the same groupId and artifactId
+     *
      * @param a other artifact to check against
-     * @return  true if same groupId + artifactId, otherwise false
+     * @return true if same groupId + artifactId, otherwise false
      */
     public boolean equalsSimple(ArtifactEntity a) {
         return Objects.equals(groupId, a.groupId) && Objects.equals(artifactId, a.artifactId);
@@ -131,7 +134,6 @@ public class ArtifactEntity {
                 ", parent=" + parent +
                 '}';
     }
-
 
 
 }
