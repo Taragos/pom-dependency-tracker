@@ -6,8 +6,8 @@ The information can be imported via the REST-API, e.g. as part of an CI-pipeline
 
 ## Installation
 
-Currently the project only officially supports docker as a deployment method.  
-Since it's a java / spring based project, normal a normal java deployment should also work.
+Currently, the project only officially supports docker as a deployment method.  
+Since it's a java / spring based project, a typical java deployment should also work.
 
 **Docker-Compose (recommended)**
 
@@ -29,19 +29,6 @@ docker run -p 8080:8080 \
     -e SYSTEM_AUTH_PASSWORD=systemPassword \
     docker.io/taragos/pom-dependency-tracker:latest
 ```
-
-## Todos
-
-* [x] Version and Release Control
-* [x] You set up the frameworks and tools that you described in the conception phase.
-* [x] You select third-party libraries you can build upon.
-* [x] You refine the requirements gathered in the conception phase.
-* [x] You implement the modules/components outlined in your building block diagram.
-* [x] You further develop your software and system documentation.
-* [x] You document important design decisions including rationales.
-* [ ] You comment your source code to make it easier for humans to understand.
-* [ ] You prepare test data and perform adequate software tests.
-
 
 ## Config for local tests
 
