@@ -28,7 +28,7 @@ class ParserServiceTest {
         final InputStream inputStreamPom = Objects.requireNonNull(classLoader.getResourceAsStream("pom.xml"));
         pom = new String(inputStreamPom.readAllBytes());
 
-        final InputStream inputStreamDt = Objects.requireNonNull(classLoader.getResourceAsStream("dependencyTree.txt"));
+        final InputStream inputStreamDt = Objects.requireNonNull(classLoader.getResourceAsStream("dependencyTree.dot"));
         dependencyTree = new String(inputStreamDt.readAllBytes());
 
         final InputStream inputStreamAd = Objects.requireNonNull(classLoader.getResourceAsStream("additionalDependencies.txt"));
@@ -57,12 +57,12 @@ class ParserServiceTest {
         Assertions.assertEquals("2.6.4", parent.getVersion());
 
         // Correctly parsed and merged dependencies from pom + tree + additional
-        Assertions.assertEquals(42, parse.getDependencies().size());
+        Assertions.assertEquals(48, parse.getDependencies().size());
 
         final Optional<DependencyRelationship> optionalDep = parse
                 .getDependencies()
                 .stream()
-                .filter(d-> Objects.equals(d.getDependency().getGAV(), "org.springframework.boot:spring-boot-starter-data-neo4j:2.6.4"))
+                .filter(d-> Objects.equals(d.getDependency().getGAV(), "org.springframework.boot:spring-boot-starter-data-neo4j:2.6.6"))
                 .findFirst();
 
         Assertions.assertTrue(optionalDep.isPresent());
@@ -70,7 +70,7 @@ class ParserServiceTest {
         final DependencyRelationship dep = optionalDep.get();
         Assertions.assertEquals("org.springframework.boot", dep.getDependency().getGroupId());
         Assertions.assertEquals("spring-boot-starter-data-neo4j", dep.getDependency().getArtifactId());
-        Assertions.assertEquals("2.6.4", dep.getDependency().getVersion());
+        Assertions.assertEquals("2.6.6", dep.getDependency().getVersion());
         Assertions.assertEquals("jar", dep.getType());
         Assertions.assertEquals("compile", dep.getScope());
         Assertions.assertEquals(2, dep.getDependency().getDependencies().size());
